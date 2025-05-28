@@ -233,25 +233,6 @@ def admin():
     return render_template('admin.html', user=usuario_logado(), tipos=tipos)
 
 
-# TEM QUE COLOCAR A PAGINA DE REGISTRO AOS EVENTOS AINDA
-# Atualmente quando clica em "Registrar-se" em um evento, ele registra o usuario automaticamenta (sem uma página para isso)
-# e depois retorna para a pagina de detalhes do evento
-# Para isso precisa adicionar o method 'GET' e "render_template()" o html da pagina
-@app.route('/eventos/<int:event_id>/registro', methods=['POST'])
-@necessita_login  # Decorator para garantir que o usuário está logado antes de registrar-se em um evento
-def register_event(event_id):
-    user = usuario_logado()
-    evento = Evento.query.get_or_404(event_id)
-    inscritos = InscricaoEvento.query.filter_by(id_evento=event_id).count()
-    if inscritos >= evento.vagas:
-        flash('Não há vagas disponíveis.', 'warning')
-    else:
-        insc = InscricaoEvento(id_usuario=user.id_usuario, id_evento=event_id)
-        db.session.add(insc)
-        db.session.commit()
-        flash('Inscrição realizada!', 'success')
-    return redirect(url_for('detalhes_evento', event_id=event_id))
-
 
 @app.route('/perfil')
 @necessita_login # Decorator para garantir que o usuário está logado antes de acessar o perfil
