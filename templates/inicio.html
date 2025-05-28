@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Início</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='inicio.css') }}">
+</head>
+<body>
+<nav>
+    <a href="{{ url_for('inicio') }}">Início</a>
+    <a href="{{ url_for('eventos') }}">Eventos</a>
+    {% if user %}
+         <a href="{{ url_for('perfil') }}">Perfil</a>
+         <a href="{{ url_for('logout') }}">Logout</a>
+        {% if user.tipo.nome in ['organizador','admin'] %}
+             <a href="{{ url_for('admin') }}">Criar Evento</a>
+        {% endif %}
+    {% else %}
+         <a href="{{ url_for('login') }}">Login</a>
+         <a href="{{ url_for('registro') }}">Cadastro</a>
+    {% endif %}
+</nav>
+
+<br><br><br>
+<div class="inicio-wrapper">
+    <div class="inicio-topo">
+        <br>
+      <h1>Seja Bem-Vindo ao Sistema de Eventos!!!</h1>
+      <a href="{{ url_for('eventos') }}" class="ver-eventos">Ver eventos</a>
+    </div>
+
+    <div class="inicio-centro">
+      <div class="texto-explicativo">
+        <h2>Quem somos?</h2>
+        <textarea placeholder="Escreva aqui uma breve explicação..."></textarea>
+
+        <h2>O que fazemos?</h2>
+        <textarea placeholder="Escreva aqui uma breve explicação..."></textarea>
+      </div>
+    </div>
+
+    <div class="inicio-lateral">
+      <div class="perfil-miniatura">
+        <img src="user-placeholder.jpg" alt="Imagem de perfil" />
+      </div>
+    </div>
+  </div>
+
+  <footer class="inicio-rodape">
+    <a href="#">Contate um Suporte.</a>
+  </footer>
+
+</body>
+</html>

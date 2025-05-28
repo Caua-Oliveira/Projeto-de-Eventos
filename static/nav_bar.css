@@ -1,0 +1,26 @@
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #6f42c1;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  padding: 0 1rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+
+}
+nav a:hover {
+  color: #d63384;
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Listagem de Eventos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='eventos.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
+</head>
+<body>
+<nav>
+    <a href="{{ url_for('inicio') }}">Início</a>
+    <a href="{{ url_for('eventos') }}">Eventos</a>
+    {% if user %}
+        {% if user.tipo.nome in ['organizador', 'admin'] %}
+        <a href="{{ url_for('admin') }}">Admin</a>
+        {% endif %}
+        {% if user.tipo.nome not in ['organizador', 'admin'] %}
+        <a href="{{ url_for('perfil') }}">Perfil</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('registro') }}">Cadastro</a>
+    {% endif %}
+</nav>
+  <div class="event-list-container">
+    <h2>Eventos disponíveis:</h2>
+
+    {% for ev in eventos %}
+    <div class="evento">
+      <a href="{{ url_for('detalhes_evento', event_id=ev.id_evento) }}">{{ ev.titulo }}</a>
+      <div class="descricao">{{ ev.descricao or '—' }}</div>
+      <div class="info-extra">
+        <span>Data: {{ ev.data_inicio.strftime('%d/%m/%Y') }}</span>
+        <span>Local: {{ ev.local or '—' }}</span>
+      </div>
+    </div>
+    {% else %}
+    <p>Não há eventos disponíveis.</p>
+    {% endfor %}
+
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
