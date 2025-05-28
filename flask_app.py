@@ -6,7 +6,7 @@ from datetime import datetime
 # Setup do flask e SQLAlchemy
 app = Flask(__name__)
 app.secret_key = 'secretkey'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost:3306/plataforma_eventos_2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost:3306/plataforma_eventos'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
