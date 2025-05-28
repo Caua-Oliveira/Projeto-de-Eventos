@@ -1,4 +1,4 @@
-### Como começar a rodar
+# Como começar a rodar
 
 1. Crie uma database no mysql com esse código:
 ```sql
@@ -266,7 +266,14 @@ DELIMITER ;
    ```bash
     python flask_app.py
    ```
-
+5. Quando você for cadastrar usuario, ele será um "participante", para cadastrar um "admin" faça isso no proprio workbench ou então mude o codigo de cadastro:
+```py
+def cadastro():
+...
+tipo = TipoUsuario.query.filter_by(
+            nome='participante').first()  # Automaticamente registra o usuario como participante (só trocar participante por admin)
+...
+```
 # Como funciona o código flask etc
 Para criar uma página nova, precisa se criar uma rota:
 ```py
