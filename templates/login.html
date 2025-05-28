@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='registro.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cadastro.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}">
 
 </head>
@@ -13,7 +13,7 @@
     <nav>
         <a href="{{ url_for('inicio') }}">Início</a>
         <a href="{{ url_for('eventos') }}">Eventos</a>
-        <a href="{{ url_for('registro') }}">Cadastro</a>
+        <a href="{{ url_for('cadastro') }}">Cadastro</a>
     </nav>
 
     <div class="container">
@@ -31,7 +31,7 @@
                 <button type="submit">Entrar</button>
                 <div class="links">
                     <a href="#">Esqueceu a senha?</a>
-                    <a href="{{ url_for('registro') }}">Não possui cadastro?</a>
+                    <a href="{{ url_for('cadastro') }}">Não possui cadastro?</a>
                 </div>
             </form>
         </div>

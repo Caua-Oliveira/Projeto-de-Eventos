@@ -121,9 +121,9 @@ def inicio():
     return render_template('inicio.html', user=usuario_logado())
 
 
-@app.route('/registro', methods=['GET', 'POST'])
-def registro():
-    # Quando o botão de registro for clicado, o "method" vai ser POST
+@app.route('/cadastro', methods=['GET', 'POST'])
+def cadastro():
+    # Quando o botão de cadastro for clicado, o "method" vai ser POST
     if request.method == 'POST':
         nome = request.form['nome']
         email = request.form['email']
@@ -132,7 +132,7 @@ def registro():
             nome='participante').first()  # Automaticamente registra o usuario como participante
         if not tipo:
             flash('Tipo de usuário inválido.', 'danger')
-            return redirect(url_for('registro'))
+            return redirect(url_for('cadastro'))
         user = Usuario(nome=nome, email=email, senha=senha, id_tipo_usuario=tipo.id_tipo_usuario)
         db.session.add(user)
         db.session.commit()
@@ -140,7 +140,7 @@ def registro():
         return redirect(url_for('login'))
 
     # Se o método não for POST, rederiza a página.
-    return render_template('registro.html')
+    return render_template('cadastro.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])

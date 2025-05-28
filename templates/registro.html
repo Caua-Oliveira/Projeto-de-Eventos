@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Cadastro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='registro.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cadastro.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}">
 
 </head>
@@ -17,7 +17,7 @@
 <div class="container">
         <div class="section">
             <h2>Seja Bem Vindo! Cadastre-se:</h2>
-                <form action="{{ url_for('registro') }}" method="post">
+                <form action="{{ url_for('cadastro') }}" method="post">
                     <label for="nome">Nome:</label><br>
                     <input type="text" id="nome" name="nome" required><br><br>
 
