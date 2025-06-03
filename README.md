@@ -246,12 +246,13 @@ BEGIN
 END //
 DELIMITER ;
 ``` 
+2. Clone o repositorio
 
-2. Instale as dependências  
+3. Instale as dependências  
    ```bash
    pip install flask flask_sqlalchemy pymysql jinja2 werkzeug
    ```
-3. Modifique o setup do SQLAlchemy
+4. Modifique o setup do SQLAlchemy
    ```py
    # Setup do flask e SQLAlchemy
     app = Flask(__name__)
@@ -262,11 +263,11 @@ DELIMITER ;
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
    ```
    
-4. Rode o flask_app.py
+5. Rode o flask_app.py
    ```bash
     python flask_app.py
    ```
-5. Quando você for cadastrar usuario, ele será um "participante", para cadastrar um "admin" faça isso no proprio workbench ou então mude o codigo de cadastro:
+6. Quando você for cadastrar usuario, ele será um "participante", para cadastrar um "admin" faça isso no proprio workbench ou então mude o codigo de cadastro:
 ```py
 def cadastro():
 ...
