@@ -1,77 +1,14 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from app_utils.utils import evento_to_dict
+from app_utils.db_models import *
 
 # Setup do flask e SQLAlchemy
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost:3306/plataforma_eventos'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
-
-#
-# Modelos da database (para utilizar o MySql)
-#
-class TipoUsuario(db.Model):
-    __tablename__ = 'tipos_usuario'
-    id_tipo_usuario = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(50), unique=True, nullable=False)
-
-
-class Usuario(db.Model):
-    __tablename__ = 'usuarios'
-    id_usuario = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    senha = db.Column(db.String(255), nullable=False)
-    id_tipo_usuario = db.Column(db.Integer, db.ForeignKey('tipos_usuario.id_tipo_usuario'), nullable=False)
-    tipo = db.relationship('TipoUsuario')
-
-
-class Evento(db.Model):
-    __tablename__ = 'eventos'
-    id_evento = db.Column(db.Integer, primary_key=True)
-    titulo = db.Column(db.String(150), nullable=False)
-    descricao = db.Column(db.Text)
-    local = db.Column(db.String(150))
-    data_inicio = db.Column(db.Date, nullable=False)
-    data_fim = db.Column(db.Date, nullable=False)
-    vagas = db.Column(db.Integer, nullable=False, default=0)
-    id_organizador = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
-    organizador = db.relationship('Usuario')
-
-
-class TipoAtividade(db.Model):
-    __tablename__ = 'tipos_atividade'
-    id_tipo_atividade = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(50), unique=True, nullable=False)
-
-
-class Atividade(db.Model):
-    __tablename__ = 'atividades'
-    id_atividade = db.Column(db.Integer, primary_key=True)
-    id_evento = db.Column(db.Integer, db.ForeignKey('eventos.id_evento'), nullable=False)
-    titulo = db.Column(db.String(150), nullable=False)
-    descricao = db.Column(db.Text)
-    data_hora = db.Column(db.DateTime, nullable=False)
-    duracao_minutos = db.Column(db.Integer)
-    id_tipo_atividade = db.Column(db.Integer, db.ForeignKey('tipos_atividade.id_tipo_atividade'), nullable=False)
-    evento = db.relationship('Evento')
-    tipo = db.relationship('TipoAtividade')
-
-
-class InscricaoEvento(db.Model):
-    __tablename__ = 'inscricoes_evento'
-    id_inscricao_evento = db.Column(db.Integer, primary_key=True)
-    id_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
-    id_evento = db.Column(db.Integer, db.ForeignKey('eventos.id_evento'), nullable=False)
-    data_inscricao = db.Column(db.DateTime, default=datetime.utcnow)
-    usuario = db.relationship('Usuario')
-    evento = db.relationship('Evento')
-
+db.init_app(app)
 
 #
 # Helpers (funções auxiliares)
@@ -115,7 +52,6 @@ def necessita_admin(f):
 #
 @app.route('/')
 def inicio():
-    # Se o usuario for um admin, vai direto para a pagina de admins, se não, vai para a tela de inicio
     if usuario_logado() and usuario_logado().tipo.nome == 'admin':
         return redirect(url_for('admin'))
     return render_template('inicio.html', user=usuario_logado())
@@ -123,7 +59,6 @@ def inicio():
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
-    # Quando o botão de cadastro for clicado, o "method" vai ser POST
     if request.method == 'POST':
         nome = request.form['nome']
         email = request.form['email']
@@ -139,13 +74,11 @@ def cadastro():
         flash('Cadastro realizado! Faça login.', 'success')
         return redirect(url_for('login'))
 
-    # Se o método não for POST, rederiza a página.
     return render_template('cadastro.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Quando o botão de login for clicado, o "method" vai ser POST
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
@@ -156,7 +89,6 @@ def login():
             return redirect(url_for('inicio'))
         flash('Credenciais inválidas.', 'danger')
 
-    # Se o método não for POST, rederiza a página.
     return render_template('login.html')
 
 
@@ -169,16 +101,12 @@ def logout():
 
 @app.route('/eventos')
 def eventos():
-    # Lista todos os eventos ordenados pela data de início e entrega como parametro para a página de eventos
-    # (em eventos.html se usa um loop para exibir os eventos)
     eventos = Evento.query.order_by(Evento.data_inicio).all()
     return render_template('eventos.html', eventos=eventos, user=usuario_logado())
 
 
 @app.route('/eventos/<int:event_id>')
 def detalhes_evento(event_id):
-    # Busca o evento pelo ID e suas atividades, verifica se o usuário está inscrito
-    # e entrega como parametro para a página de detalhes do evento
     evento = Evento.query.get_or_404(event_id)
     atividades = Atividade.query.filter_by(id_evento=event_id).order_by(Atividade.data_hora).all()
     inscrito = False
@@ -187,26 +115,22 @@ def detalhes_evento(event_id):
         inscrito = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario, id_evento=event_id).first() is not None
     return render_template('detalhes_evento.html', evento=evento, atividades=atividades, inscrito=inscrito, user=user)
 
-
 @app.route('/admin', methods=['GET', 'POST'])
-@necessita_admin  # Decorator para garantir que apenas administradores acessem essa rota
+@necessita_admin
 def admin():
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
     if request.method == 'POST':
-        # 1) cria evento
-        ev = Evento(
-            titulo=request.form['titulo'],
-            descricao=request.form.get('descricao'),
-            local=request.form.get('local'),
-            data_inicio=datetime.strptime(request.form['data_inicio'], '%Y-%m-%d').date(),
-            data_fim=datetime.strptime(request.form['data_fim'], '%Y-%m-%d').date(),
-            vagas=int(request.form['vagas']),
-            id_organizador=usuario_logado().id_usuario
-        )
-        db.session.add(ev)
-        db.session.flush()  # para ter ev.id_evento antes de commit
-
-        # 2) cria atividades vinculadas
+        # Monta o payload para a API
+        payload = {
+            "titulo": request.form['titulo'],
+            "descricao": request.form.get('descricao'),
+            "local": request.form.get('local'),
+            "data_inicio": request.form['data_inicio'],
+            "data_fim": request.form['data_fim'],
+            "vagas": int(request.form['vagas']),
+            "id_organizador": usuario_logado().id_usuario,
+            "atividades": []
+        }
         titulos = request.form.getlist('titulo_atividade')
         descricoes = request.form.getlist('descricao_atividade')
         datash = request.form.getlist('data_hora_atividade')
@@ -216,30 +140,83 @@ def admin():
         for i, t in enumerate(titulos):
             if not t.strip():
                 continue
-            atividade = Atividade(
-                id_evento=ev.id_evento,
-                titulo=t,
-                descricao=descricoes[i] or None,
-                data_hora=datetime.strptime(datash[i], '%Y-%m-%dT%H:%M'),
-                duracao_minutos=int(duracoes[i]),
-                id_tipo_atividade=int(tipos_ids[i])
-            )
-            db.session.add(atividade)
+            payload["atividades"].append({
+                "titulo": t,
+                "descricao": descricoes[i] or None,
+                "data_hora": datash[i],  # espera-se formato 'YYYY-MM-DDTHH:MM'
+                "duracao_minutos": int(duracoes[i]),
+                "id_tipo_atividade": int(tipos_ids[i])
+            })
 
-        db.session.commit()
-        flash('Evento e atividades criados com sucesso!', 'success')
+        import requests
+        resp = requests.post('http://127.0.0.1:5000/api/eventos', json=payload)
+        if resp.status_code == 201:
+            flash('Evento criado com sucesso!', 'success')
+        else:
+            flash(f'Erro ao criar evento: {resp.json().get("error", "Erro desconhecido")}', 'danger')
         return redirect(url_for('admin'))
 
     return render_template('admin.html', user=usuario_logado(), tipos=tipos)
 
 
-
 @app.route('/perfil')
-@necessita_login # Decorator para garantir que o usuário está logado antes de acessar o perfil
+@necessita_login
 def perfil():
     user = usuario_logado()
     minhas_inscricoes = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario).all()
     return render_template('perfil.html', user=user, inscricoes=minhas_inscricoes)
+
+
+
+# NOVO ENDPOINT API PARA CRIAÇÃO DE EVENTOS
+@app.route('/api/eventos', methods=['POST'])
+def api_criar_evento():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Dados JSON ausentes'}), 400
+
+    try:
+        # Cria evento
+        ev = Evento(
+            titulo=data['titulo'],
+            descricao=data.get('descricao'),
+            local=data.get('local'),
+            data_inicio=datetime.strptime(data['data_inicio'], '%Y-%m-%d').date(),
+            data_fim=datetime.strptime(data['data_fim'], '%Y-%m-%d').date(),
+            vagas=int(data['vagas']),
+            id_organizador=int(data['id_organizador'])
+        )
+        db.session.add(ev)
+        db.session.flush()  # Para pegar o id_evento
+
+        # Cria atividades vinculadas
+        atividades = data.get('atividades', [])
+        for atv in atividades:
+            atividade = Atividade(
+                id_evento=ev.id_evento,
+                titulo=atv['titulo'],
+                descricao=atv.get('descricao'),
+                data_hora=datetime.strptime(atv['data_hora'], '%Y-%m-%dT%H:%M'),
+                duracao_minutos=int(atv['duracao_minutos']),
+                id_tipo_atividade=int(atv['id_tipo_atividade'])
+            )
+            db.session.add(atividade)
+
+        db.session.commit()
+
+        return jsonify({'success': True, 'id_evento': ev.id_evento}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/events/<int:evento_id>', methods=['GET'])
+def api_detalhes_evento(evento_id):
+    evento = Evento.query.get(evento_id)
+    if not evento:
+        return jsonify({'error': 'Evento nao encontrado'}), 404
+    return jsonify(evento_to_dict(evento)), 200
+
 
 
 if __name__ == '__main__':
