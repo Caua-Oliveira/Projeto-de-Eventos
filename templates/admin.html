@@ -20,7 +20,7 @@
 </nav>
 
 <h1>Criar Novo Evento</h1>
-<form action="{{ url_for('admin') }}" method="post">
+<form action="{{ url_for('admin') }}" method="post" enctype="multipart/form-data">
   <fieldset>
     <legend>Dados do Evento</legend>
     <label>Título:</label><br>
@@ -40,6 +40,9 @@
 
     <label>Vagas:</label><br>
     <input type="number" name="vagas" min="0" value="0" required><br><br>
+
+    <label>Imagem do Evento:</label><br>
+    <input type="file" name="imagem_evento" accept="image/*"><br><br>
   </fieldset>
 
   <fieldset id="atividades-container">
@@ -79,7 +82,6 @@
 function addAtividade() {
   const container = document.getElementById('atividades-container');
   const template = container.querySelector('.atividade').cloneNode(true);
-  // limpa campos
   template.querySelectorAll('input, textarea').forEach(el => el.value = '');
   container.appendChild(template);
 }

@@ -1,6 +1,6 @@
 
 from app_utils.db_models import *
-
+import requests
 # --- SERIALIZERS ---
 def evento_to_dict(evento):
     return {
@@ -21,4 +21,27 @@ def evento_to_dict(evento):
             for at in Atividade.query.filter_by(id_evento=evento.id_evento).all()
         ]
     }
+
+
+def upload_image_to_imgbb(image_file):
+    API_KEY = 'c47a70773b3c1c0ea59b33d6d65add83'
+    url = "https://api.imgbb.com/1/upload"
+
+    payload = {
+        "key": API_KEY
+    }
+
+    files = {
+        "image": (image_file.filename, image_file.stream, image_file.mimetype)
+    }
+
+    response = requests.post(url, data=payload, files=files)
+
+    if response.status_code == 200:
+        print(response.json()['data']['url'])
+        return response.json()['data']['url']
+    else:
+        print("Upload failed:", response.text)
+        return None
+
 

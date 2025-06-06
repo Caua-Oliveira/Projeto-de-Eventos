@@ -28,6 +28,7 @@ class Evento(db.Model):
     vagas = db.Column(db.Integer, nullable=False, default=0)
     id_organizador = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
     organizador = db.relationship('Usuario')
+    imagem_url = db.Column(db.String(500), nullable=True)
 
 class TipoAtividade(db.Model):
     __tablename__ = 'tipos_atividade'

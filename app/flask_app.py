@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from app_utils.utils import evento_to_dict
+from app_utils.utils import evento_to_dict, upload_image_to_imgbb
 from app_utils.db_models import *
 
 # Setup do flask e SQLAlchemy
@@ -20,7 +20,6 @@ def usuario_logado():
         return None
     return Usuario.query.get(uid)
 
-
 def necessita_login(f):
     # Decorator para garantir que o usuário está logado antes de acessar uma rota
     from functools import wraps
@@ -29,9 +28,7 @@ def necessita_login(f):
         if not usuario_logado():
             return redirect(url_for('login'))
         return f(*args, **kwargs)
-
     return decorated_function
-
 
 def necessita_admin(f):
     # Decorator para garantir que o usuário é um administrador antes de acessar uma rota
@@ -43,9 +40,7 @@ def necessita_admin(f):
             flash('Acesso negado.', 'danger')
             return redirect(url_for('inicio'))
         return f(*args, **kwargs)
-
     return decorated_function
-
 
 #
 # Rotas do flask (telas)
@@ -54,43 +49,49 @@ def necessita_admin(f):
 def inicio():
     if usuario_logado() and usuario_logado().tipo.nome == 'admin':
         return redirect(url_for('admin'))
-    return render_template('inicio.html', user=usuario_logado())
-
+    return render_template('inicio.html', user=usuario_logado(),
+                           eventos=Evento.query.order_by(Evento.data_inicio).limit(10).all())
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     if request.method == 'POST':
         nome = request.form['nome']
         email = request.form['email']
-        senha = generate_password_hash(request.form['senha'])  # Criptografa a senha
-        tipo = TipoUsuario.query.filter_by(
-            nome='participante').first()  # Automaticamente registra o usuario como participante
-        if not tipo:
-            flash('Tipo de usuário inválido.', 'danger')
+        senha = request.form['senha']
+        # Chama a API de cadastro
+        import requests
+        resp = requests.post('http://127.0.0.1:5000/api/cadastro', json={
+            'nome': nome,
+            'email': email,
+            'senha': senha
+        })
+        if resp.status_code == 201:
+            flash('Cadastro realizado! Faça login.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash(resp.json().get('error', 'Erro ao cadastrar usuário.'), 'danger')
             return redirect(url_for('cadastro'))
-        user = Usuario(nome=nome, email=email, senha=senha, id_tipo_usuario=tipo.id_tipo_usuario)
-        db.session.add(user)
-        db.session.commit()
-        flash('Cadastro realizado! Faça login.', 'success')
-        return redirect(url_for('login'))
-
     return render_template('cadastro.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
-        user = Usuario.query.filter_by(email=email).first()
-        if user and check_password_hash(user.senha, senha):
-            session['user_id'] = user.id_usuario
-            flash('Bem-vindo, {}!'.format(user.nome), 'success')
+        # Chama a API de login
+        import requests
+        resp = requests.post('http://127.0.0.1:5000/api/login', json={
+            'email': email,
+            'senha': senha
+        })
+        if resp.status_code == 200:
+            user = resp.json()['user']
+            session['user_id'] = user['id_usuario']
+            flash('Bem-vindo, {}!'.format(user['nome']), 'success')
             return redirect(url_for('inicio'))
-        flash('Credenciais inválidas.', 'danger')
-
+        else:
+            flash(resp.json().get('error', 'Credenciais inválidas.'), 'danger')
     return render_template('login.html')
-
 
 @app.route('/logout')
 def logout():
@@ -98,12 +99,10 @@ def logout():
     flash('Você saiu da conta.', 'info')
     return redirect(url_for('inicio'))
 
-
 @app.route('/eventos')
 def eventos():
     eventos = Evento.query.order_by(Evento.data_inicio).all()
     return render_template('eventos.html', eventos=eventos, user=usuario_logado())
-
 
 @app.route('/eventos/<int:event_id>')
 def detalhes_evento(event_id):
@@ -121,6 +120,14 @@ def admin():
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
     if request.method == 'POST':
         # Monta o payload para a API
+        imagem = request.files.get('imagem_evento')
+        imagem_url = None
+        if imagem:
+            imagem_url = upload_image_to_imgbb(imagem)
+            if not imagem_url:
+                print("Erro ao fazer upload da imagem.")
+                flash('Erro ao fazer upload da imagem.', 'danger')
+                #return redirect(url_for('admin'))
         payload = {
             "titulo": request.form['titulo'],
             "descricao": request.form.get('descricao'),
@@ -128,6 +135,7 @@ def admin():
             "data_inicio": request.form['data_inicio'],
             "data_fim": request.form['data_fim'],
             "vagas": int(request.form['vagas']),
+            "imagem_url": imagem_url,
             "id_organizador": usuario_logado().id_usuario,
             "atividades": []
         }
@@ -158,7 +166,6 @@ def admin():
 
     return render_template('admin.html', user=usuario_logado(), tipos=tipos)
 
-
 @app.route('/perfil')
 @necessita_login
 def perfil():
@@ -166,7 +173,48 @@ def perfil():
     minhas_inscricoes = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario).all()
     return render_template('perfil.html', user=user, inscricoes=minhas_inscricoes)
 
+# NOVOS ENDPOINTS API DE LOGIN E CADASTRO
+@app.route('/api/cadastro', methods=['POST'])
+def api_cadastro():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Dados JSON ausentes'}), 400
+    nome = data.get('nome')
+    email = data.get('email')
+    senha = data.get('senha')
+    if not (nome and email and senha):
+        return jsonify({'error': 'Nome, email e senha são obrigatórios.'}), 400
+    if Usuario.query.filter_by(email=email).first():
+        return jsonify({'error': 'E-mail já cadastrado.'}), 400
+    tipo = TipoUsuario.query.filter_by(nome='participante').first()
+    if not tipo:
+        return jsonify({'error': 'Tipo de usuário inválido.'}), 400
+    hashed_password = generate_password_hash(senha)
+    user = Usuario(nome=nome, email=email, senha=hashed_password, id_tipo_usuario=tipo.id_tipo_usuario)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({'success': True, 'id_usuario': user.id_usuario}), 201
 
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Dados JSON ausentes'}), 400
+    email = data.get('email')
+    senha = data.get('senha')
+    if not (email and senha):
+        return jsonify({'error': 'Email e senha são obrigatórios.'}), 400
+    user = Usuario.query.filter_by(email=email).first()
+    if user and check_password_hash(user.senha, senha):
+        # Retorna dados mínimos do usuário
+        user_json = {
+            'id_usuario': user.id_usuario,
+            'nome': user.nome,
+            'email': user.email,
+            'tipo': user.tipo.nome
+        }
+        return jsonify({'success': True, 'user': user_json}), 200
+    return jsonify({'error': 'Credenciais inválidas.'}), 401
 
 # NOVO ENDPOINT API PARA CRIAÇÃO DE EVENTOS
 @app.route('/api/eventos', methods=['POST'])
@@ -184,6 +232,7 @@ def api_criar_evento():
             data_inicio=datetime.strptime(data['data_inicio'], '%Y-%m-%d').date(),
             data_fim=datetime.strptime(data['data_fim'], '%Y-%m-%d').date(),
             vagas=int(data['vagas']),
+            imagem_url=data.get('imagem_url'),
             id_organizador=int(data['id_organizador'])
         )
         db.session.add(ev)
@@ -216,8 +265,6 @@ def api_detalhes_evento(evento_id):
     if not evento:
         return jsonify({'error': 'Evento nao encontrado'}), 404
     return jsonify(evento_to_dict(evento)), 200
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
