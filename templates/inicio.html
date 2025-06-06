@@ -11,23 +11,23 @@
 </head>
 <body>
   <nav>
-      <a href="{{ url_for('inicio') }}">Início</a>
-      <a href="{{ url_for('eventos') }}">Eventos</a>
+      <a href="{{ url_for('rotas.inicio') }}">Início</a>
+      <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
       {% if user %}
-           <a href="{{ url_for('perfil') }}">Perfil</a>
-           <a href="{{ url_for('logout') }}">Logout</a>
+           <a href="{{ url_for('rotas.perfil') }}">Perfil</a>
+           <a href="{{ url_for('rotas.logout') }}">Logout</a>
           {% if user.tipo.nome in ['organizador','admin'] %}
-               <a href="{{ url_for('admin') }}">Criar Evento</a>
+               <a href="{{ url_for('rotas.admin') }}">Criar Evento</a>
           {% endif %}
       {% else %}
-           <a href="{{ url_for('login') }}">Login</a>
-           <a href="{{ url_for('cadastro') }}">Cadastro</a>
+           <a href="{{ url_for('rotas.login') }}">Login</a>
+           <a href="{{ url_for('rotas.cadastro') }}">Cadastro</a>
       {% endif %}
   </nav>
   <div class="inicio-wrapper">
     <div class="inicio-topo">
       <h1>Seja Bem-Vindo ao Sistema de Eventos!!!</h1>
-      <a href="{{ url_for('eventos') }}" class="ver-eventos">Ver eventos</a>
+      <a href="{{ url_for('rotas.eventos') }}" class="ver-eventos">Ver eventos</a>
     </div>
 
     <section class="carrossel-destaque">
@@ -44,7 +44,7 @@
             {% for evento in eventos %}
               <div class="evento-col">
                 <div class="card evento-card-bootstrap m-2 d-flex flex-column align-items-center">
-                  <a href="{{ url_for('detalhes_evento', event_id=evento.id_evento) }}" style="text-decoration:none; color:inherit; width: 100%;">
+                  <a href="{{ url_for('rotas.detalhes_evento', event_id=evento.id_evento) }}" style="text-decoration:none; color:inherit; width: 100%;">
                     <div class="evento-imagem-wrapper">
                       <img
                         src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='default_evento.jpg') }}"

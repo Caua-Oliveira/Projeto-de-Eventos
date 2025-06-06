@@ -9,7 +9,7 @@ rotas = Blueprint('rotas', __name__)
 @rotas.route('/')
 def inicio():
     if usuario_logado() and usuario_logado().tipo.nome == 'admin':
-        return redirect(url_for('routes.admin'))
+        return redirect(url_for('rotas.admin'))
     return render_template('inicio.html', user=usuario_logado(),
                            eventos=Evento.query.order_by(Evento.data_inicio).limit(10).all())
 
@@ -26,10 +26,10 @@ def cadastro():
         })
         if resp.status_code == 201:
             flash('Cadastro realizado! Faça login.', 'success')
-            return redirect(url_for('routes.login'))
+            return redirect(url_for('rotas.login'))
         else:
             flash(resp.json().get('error', 'Erro ao cadastrar usuário.'), 'danger')
-            return redirect(url_for('routes.cadastro'))
+            return redirect(url_for('rotas.cadastro'))
     return render_template('cadastro.html')
 
 @rotas.route('/login', methods=['GET', 'POST'])
@@ -45,7 +45,7 @@ def login():
             user = resp.json()['user']
             session['user_id'] = user['id_usuario']
             flash('Bem-vindo, {}!'.format(user['nome']), 'success')
-            return redirect(url_for('routes.inicio'))
+            return redirect(url_for('rotas.inicio'))
         else:
             flash(resp.json().get('error', 'Credenciais inválidas.'), 'danger')
     return render_template('login.html')
@@ -54,7 +54,7 @@ def login():
 def logout():
     session.clear()
     flash('Você saiu da conta.', 'info')
-    return redirect(url_for('routes.inicio'))
+    return redirect(url_for('rotas.inicio'))
 
 @rotas.route('/eventos')
 def eventos():
@@ -115,7 +115,7 @@ def admin():
             flash('Evento criado com sucesso!', 'success')
         else:
             flash(f'Erro ao criar evento: {resp.json().get("error", "Erro desconhecido")}', 'danger')
-        return redirect(url_for('routes.admin'))
+        return redirect(url_for('rotas.admin'))
 
     return render_template('admin.html', user=usuario_logado(), tipos=tipos)
 

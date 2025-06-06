@@ -9,14 +9,14 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="{{ url_for('inicio') }}">Início</a>
-    <a href="{{ url_for('eventos') }}">Eventos</a>
+    <a href="{{ url_for('rotas.inicio') }}">Início</a>
+    <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
     {% if user %}
-    <a href="{{ url_for('perfil') }}">Perfil</a>
-       <a href="{{ url_for('logout') }}">Logout</a>
+    <a href="{{ url_for('rotas.perfil') }}">Perfil</a>
+       <a href="{{ url_for('rotas.logout') }}">Logout</a>
     {% else %}
-       <a href="{{ url_for('login') }}">Login</a>
-       <a href="{{ url_for('cadastro') }}">Cadastro</a>
+       <a href="{{ url_for('rotas.login') }}">Login</a>
+       <a href="{{ url_for('rotas.cadastro') }}">Cadastro</a>
     {% endif %}
   </nav>
 <br>
@@ -35,7 +35,7 @@
         <ul>
           {% for ins in inscricoes %}
             <li>
-              <a href="{{ url_for('detalhes_evento', event_id=ins.evento.id_evento) }}">
+              <a href="{{ url_for('rotas.detalhes_evento', event_id=ins.evento.id_evento) }}">
                 {{ ins.evento.titulo }}
               </a>
             </li>
@@ -52,7 +52,7 @@
         <ul>
           {% for ins in participados %}
             <li>
-              <a href="{{ url_for('detalhes_evento', event_id=ins.evento.id_evento) }}">
+              <a href="{{ url_for('rotas.detalhes_evento', event_id=ins.evento.id_evento) }}">
                 {{ ins.evento.titulo }}
               </a>
             </li>

@@ -9,15 +9,15 @@
 </head>
 <body>
 <nav>
-    <a href="{{ url_for('inicio') }}">Início</a>
-    <a href="{{ url_for('eventos') }}">Eventos</a>
-    <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('rotas.inicio') }}">Início</a>
+    <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
+    <a href="{{ url_for('rotas.login') }}">Login</a>
 </nav>
 
 <div class="container">
         <div class="section">
             <h2>Seja Bem Vindo! Cadastre-se:</h2>
-                <form action="{{ url_for('cadastro') }}" method="post">
+                <form action="{{ url_for('rotas.cadastro') }}" method="post">
                     <label for="nome">Nome:</label><br>
                     <input type="text" id="nome" name="nome" required><br><br>
 
@@ -29,7 +29,7 @@
 
                     <button type="submit">Cadastrar</button>
                     <div class="links">
-                    <a href="{{ url_for('login') }}">Já possui cadastro?</a>
+                    <a href="{{ url_for('rotas.login') }}">Já possui cadastro?</a>
                     </div>
                 </form>
         </div>
