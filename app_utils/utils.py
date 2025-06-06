@@ -2,7 +2,7 @@
 from app_utils.db_models import *
 import requests
 # --- SERIALIZERS ---
-def evento_to_dict(evento):
+def event_to_dict(evento):
     return {
         "id": evento.id_evento,
         "titulo": evento.titulo,

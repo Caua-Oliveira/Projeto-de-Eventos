@@ -3,12 +3,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 from app_utils.db_models import db, Usuario, TipoUsuario, Evento, Atividade
-from app_utils.utils import evento_to_dict
+from app_utils.utils import event_to_dict
 
 api = Blueprint('api', __name__)
 
-@api.route('/cadastro', methods=['POST'])
-def cadastro():
+@api.route('/sign_up', methods=['POST'])
+def api_sign_up():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Dados JSON ausentes'}), 400
@@ -29,7 +29,7 @@ def cadastro():
     return jsonify({'success': True, 'id_usuario': user.id_usuario}), 201
 
 @api.route('/login', methods=['POST'])
-def login():
+def api_login():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Dados JSON ausentes'}), 400
@@ -48,8 +48,8 @@ def login():
         return jsonify({'success': True, 'user': user_json}), 200
     return jsonify({'error': 'Credenciais inválidas.'}), 401
 
-@api.route('/eventos', methods=['POST'])
-def criar_evento():
+@api.route('/events', methods=['POST'])
+def api_create_event():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Dados JSON ausentes'}), 400
@@ -89,8 +89,8 @@ def criar_evento():
         return jsonify({'error': str(e)}), 500
 
 @api.route('/events/<int:evento_id>', methods=['GET'])
-def detalhes_evento(evento_id):
+def api_event_details(evento_id):
     evento = Evento.query.get(evento_id)
     if not evento:
         return jsonify({'error': 'Evento nao encontrado'}), 404
-    return jsonify(evento_to_dict(evento)), 200
+    return jsonify(event_to_dict(evento)), 200

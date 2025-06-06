@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Perfil de Usuário</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}" />
+  <title>profile de Usuário</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
   <nav class="navbar">
-    <a href="{{ url_for('rotas.inicio') }}">Início</a>
-    <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
+    <a href="{{ url_for('rotas.home') }}">Início</a>
+    <a href="{{ url_for('rotas.events') }}">Eventos</a>
     {% if user %}
-    <a href="{{ url_for('rotas.perfil') }}">Perfil</a>
+    <a href="{{ url_for('rotas.profile') }}">Perfil</a>
        <a href="{{ url_for('rotas.logout') }}">Logout</a>
     {% else %}
        <a href="{{ url_for('rotas.login') }}">Login</a>
-       <a href="{{ url_for('rotas.cadastro') }}">Cadastro</a>
+       <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
     {% endif %}
   </nav>
 <br>
-  <div class="perfil-wrapper">
-    <div class="perfil-container">
+  <div class="profile-wrapper">
+    <div class="profile-container">
       <h2>Perfil do Usuário</h2>
 
       <div class="info-usuario">
@@ -29,13 +29,13 @@
         <p><strong>Email:</strong> {{ user.email }}</p>
       </div>
 
-      <div class="eventos-inscritos">
+      <div class="events-inscritos">
         <h3>Eventos Inscritos:</h3>
         {% if inscricoes %}
         <ul>
           {% for ins in inscricoes %}
             <li>
-              <a href="{{ url_for('rotas.detalhes_evento', event_id=ins.evento.id_evento) }}">
+              <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
                 {{ ins.evento.titulo }}
               </a>
             </li>
@@ -46,13 +46,13 @@
         {% endif %}
       </div>
 
-      <div class="eventos-participados">
+      <div class="events-participados">
         <h3>Eventos Participados:</h3>
         {% if participados %}
         <ul>
           {% for ins in participados %}
             <li>
-              <a href="{{ url_for('rotas.detalhes_evento', event_id=ins.evento.id_evento) }}">
+              <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
                 {{ ins.evento.titulo }}
               </a>
             </li>
@@ -63,18 +63,18 @@
         {% endif %}
       </div>
 
-      <button class="btn-editar">Editar Perfil</button>
+      <button class="btn-editar">Editar profile</button>
     </div>
 
-    <div class="perfil-lateral">
-      <label for="foto-perfil" class="upload-box">
-        <input type="file" id="foto-perfil" />
+    <div class="profile-lateral">
+      <label for="foto-profile" class="upload-box">
+        <input type="file" id="foto-profile" />
         <p>Inserir foto de perfil</p>
       </label>
 
       <div class="numero-participacoes">
-        <label for="contador-eventos">Número de participações:</label>
-        <input type="number" id="contador-eventos"
+        <label for="contador-events">Número de participações:</label>
+        <input type="number" id="contador-events"
                value="{{ participados|length if participados is defined else 0 }}"
                readonly />
       </div>

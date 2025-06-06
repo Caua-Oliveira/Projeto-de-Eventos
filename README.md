@@ -3,8 +3,8 @@
 1. Crie uma database no mysql com esse código:
 ```sql
 
-CREATE DATABASE IF NOT EXISTS plataforma_eventos;
-USE plataforma_eventos;
+CREATE DATABASE IF NOT EXISTS plataforma_events;
+USE plataforma_events;
 
 CREATE TABLE tipos_usuario (
     id_tipo_usuario INT PRIMARY KEY AUTO_INCREMENT,
@@ -25,7 +25,7 @@ CREATE TABLE usuarios (
 );
 
 
-CREATE TABLE eventos (
+CREATE TABLE events (
     id_evento INT PRIMARY KEY AUTO_INCREMENT,
     titulo VARCHAR(150) NOT NULL,
     descricao TEXT,
@@ -38,8 +38,8 @@ CREATE TABLE eventos (
     FOREIGN KEY (id_organizador) 
         REFERENCES usuarios(id_usuario)
 );
-CREATE INDEX idx_eventos_organizador 
-    ON eventos(id_organizador);
+CREATE INDEX idx_events_organizador 
+    ON events(id_organizador);
 
 
 CREATE TABLE tipos_atividade (
@@ -58,7 +58,7 @@ CREATE TABLE atividades (
     duracao_minutos INT CHECK (duracao_minutos > 0),
     id_tipo_atividade INT NOT NULL,
     FOREIGN KEY (id_evento) 
-        REFERENCES eventos(id_evento),
+        REFERENCES events(id_evento),
     FOREIGN KEY (id_tipo_atividade) 
         REFERENCES tipos_atividade(id_tipo_atividade)
 );
@@ -74,7 +74,7 @@ CREATE TABLE inscricoes_evento (
     FOREIGN KEY (id_usuario) 
         REFERENCES usuarios(id_usuario),
     FOREIGN KEY (id_evento) 
-        REFERENCES eventos(id_evento),
+        REFERENCES events(id_evento),
     UNIQUE (id_usuario, id_evento)
 );
 CREATE INDEX idx_inscricoes_evento_usuario 
@@ -90,13 +90,13 @@ CREATE TABLE convidados (
     foto VARCHAR(255)
 );
 
-CREATE TABLE convidados_eventos (
+CREATE TABLE convidados_events (
     id_evento   INT NOT NULL,
     id_convidado INT NOT NULL,
     papel VARCHAR(100),
     PRIMARY KEY (id_evento, id_convidado),
     FOREIGN KEY (id_evento)   
-        REFERENCES eventos(id_evento),
+        REFERENCES events(id_evento),
     FOREIGN KEY (id_convidado) 
         REFERENCES convidados(id_convidado)
 );
@@ -133,7 +133,7 @@ BEGIN
     
     SELECT vagas 
       INTO vagas_totais
-      FROM eventos
+      FROM events
      WHERE id_evento = pid_evento;
     
     IF vagas_totais IS NULL THEN
@@ -178,19 +178,19 @@ SELECT
     e.titulo AS evento,
     COUNT(v.id_inscricao_evento) AS total_inscritos_evento
 FROM atividades a
-JOIN eventos e 
+JOIN events e 
   ON a.id_evento = e.id_evento
 LEFT JOIN inscricoes_evento v 
   ON e.id_evento = v.id_evento
 GROUP BY a.id_atividade, a.titulo, e.titulo;
 
 
-CREATE OR REPLACE VIEW resumo_inscricoes_eventos AS
+CREATE OR REPLACE VIEW resumo_inscricoes_events AS
 SELECT 
     e.id_evento,
     e.titulo AS evento,
     COUNT(ie.id_inscricao_evento) AS total_inscritos
-FROM eventos e
+FROM events e
 LEFT JOIN inscricoes_evento ie 
   ON e.id_evento = ie.id_evento
 GROUP BY e.id_evento, e.titulo;
@@ -208,7 +208,7 @@ JOIN inscricoes_evento ie
   ON c.id_inscricao_evento = ie.id_inscricao_evento
 JOIN usuarios u 
   ON ie.id_usuario = u.id_usuario
-JOIN eventos e 
+JOIN events e 
   ON ie.id_evento = e.id_evento;
 
 
@@ -235,7 +235,7 @@ BEGIN
     INSERT INTO avaliacoes (id_inscricao_evento, nota, comentario)
     SELECT ie.id_inscricao_evento, 5, 'Avaliação automática padrão'
     FROM inscricoes_evento ie
-    JOIN eventos e 
+    JOIN events e 
       ON ie.id_evento = e.id_evento
     WHERE e.data_fim < CURDATE()
       AND NOT EXISTS (
@@ -259,7 +259,7 @@ DELIMITER ;
     app.secret_key = 'secretkey'
     #Aqui onde está "1234" você coloca a senha que escolheu para o mysql.
     #Onde está "root" você coloca o usuario do mysql, normalmente é root mesmo, a não ser que você mudou.
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost:3306/plataforma_eventos'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost:3306/plataforma_events'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
    ```
    
@@ -267,9 +267,9 @@ DELIMITER ;
    ```bash
     python flask_app.py
    ```
-6. Quando você for cadastrar usuario, ele será um "participante", para cadastrar um "admin" faça isso no proprio workbench ou então mude o codigo de cadastro:
+6. Quando você for cadastrar usuario, ele será um "participante", para cadastrar um "admin" faça isso no proprio workbench ou então mude o codigo de sign_up:
 ```py
-def cadastro():
+def sign_up():
 ...
 tipo = TipoUsuario.query.filter_by(
             nome='participante').first()  # Automaticamente registra o usuario como participante (só trocar participante por admin)
@@ -296,14 +296,14 @@ No html, para ser redirecionado à outra página, o href tem que ser isso:
 ```
 No html também está sendo usado o Jinja, que permite criar codigos similares ao python dentro do html.
 ```html
-#Exemplo dos eventos inscritos na pagina de perfil:
-<div class="eventos-inscritos">
-        <h3>Eventos Inscritos:</h3>
+#Exemplo dos events inscritos na pagina de profile:
+<div class="events-inscritos">
+        <h3>events Inscritos:</h3>
         {% if inscricoes %} 
         <ul>
           {% for ins in inscricoes %}
             <li>
-              <a href="{{ url_for('detalhes_evento', event_id=ins.evento.id_evento) }}">
+              <a href="{{ url_for('event_details', event_id=ins.evento.id_evento) }}">
                 {{ ins.evento.titulo }}
               </a>
             </li>
@@ -316,12 +316,12 @@ No html também está sendo usado o Jinja, que permite criar codigos similares a
 ```
 Tudo que tem {% ___ %} é do jinja e essas variaveis que estão sendo usadas vem da route:
 ```py
-@app.route('/perfil')
-@necessita_login # Decorator para garantir que o usuário está logado antes de acessar o perfil
-def perfil():
+@app.route('/profile')
+@necessita_login # Decorator para garantir que o usuário está logado antes de acessar o profile
+def profile():
     user = usuario_logado()
     minhas_inscricoes = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario).all()
-    return render_template('perfil.html', user=user, inscricoes=minhas_inscricoes) #no html o jinja usou inscricoes, que foi dado nesse return.
+    return render_template('profile.html', user=user, inscricoes=minhas_inscricoes) #no html o jinja usou inscricoes, que foi dado nesse return.
 ``` 
 Para fazer as querys no banco de dados, faz o que foi mostrado acima:
 ```py

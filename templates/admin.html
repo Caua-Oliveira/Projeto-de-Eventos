@@ -7,13 +7,13 @@
 </head>
 <body>
 <nav>
-    <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
+    <a href="{{ url_for('rotas.events') }}">Eventos</a>
     {% if user %}
         {% if user.tipo.nome in ['organizador', 'admin'] %}
         <a href="{{ url_for('rotas.admin') }}">Admin</a>
         {% endif %}
         {% if user.tipo.nome not in ['organizador', 'admin'] %}
-        <a href="{{ url_for('rotas.perfil') }}">Perfil</a>
+        <a href="{{ url_for('rotas.profile') }}">Perfil</a>
         {% endif %}
         <a href="{{ url_for('rotas.logout') }}">Logout</a>
     {% endif %}

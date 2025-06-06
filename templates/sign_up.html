@@ -2,22 +2,22 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='cadastro.css') }}">
+    <title>sign_up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sign_up.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}">
 
 </head>
 <body>
 <nav>
-    <a href="{{ url_for('rotas.inicio') }}">Início</a>
-    <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
+    <a href="{{ url_for('rotas.home') }}">Início</a>
+    <a href="{{ url_for('rotas.events') }}">Evento</a>
     <a href="{{ url_for('rotas.login') }}">Login</a>
 </nav>
 
 <div class="container">
         <div class="section">
             <h2>Seja Bem Vindo! Cadastre-se:</h2>
-                <form action="{{ url_for('rotas.cadastro') }}" method="post">
+                <form action="{{ url_for('rotas.sign_up') }}" method="post">
                     <label for="nome">Nome:</label><br>
                     <input type="text" id="nome" name="nome" required><br><br>
 

@@ -1,4 +1,4 @@
-.perfil-wrapper {
+.profile-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -8,7 +8,7 @@
   padding: 20px;
 }
 
-.perfil-container {
+.profile-container {
   flex: 2;
   background-color: #ffffff;
   padding: 30px;
@@ -16,7 +16,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.perfil-lateral {
+.profile-lateral {
   flex: 1;
   background-color: #ffffff;
   padding: 20px;

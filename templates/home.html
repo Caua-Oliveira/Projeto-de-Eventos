@@ -6,28 +6,28 @@
   <title>Tela de Início</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='inicio.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
   <nav>
-      <a href="{{ url_for('rotas.inicio') }}">Início</a>
-      <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
+      <a href="{{ url_for('rotas.home') }}">Início</a>
+      <a href="{{ url_for('rotas.events') }}">Evento</a>
       {% if user %}
-           <a href="{{ url_for('rotas.perfil') }}">Perfil</a>
+           <a href="{{ url_for('rotas.profile') }}">Perfil</a>
            <a href="{{ url_for('rotas.logout') }}">Logout</a>
           {% if user.tipo.nome in ['organizador','admin'] %}
                <a href="{{ url_for('rotas.admin') }}">Criar Evento</a>
           {% endif %}
       {% else %}
            <a href="{{ url_for('rotas.login') }}">Login</a>
-           <a href="{{ url_for('rotas.cadastro') }}">Cadastro</a>
+           <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
       {% endif %}
   </nav>
-  <div class="inicio-wrapper">
-    <div class="inicio-topo">
+  <div class="home-wrapper">
+    <div class="home-topo">
       <h1>Seja Bem-Vindo ao Sistema de Eventos!!!</h1>
-      <a href="{{ url_for('rotas.eventos') }}" class="ver-eventos">Ver eventos</a>
+      <a href="{{ url_for('rotas.events') }}" class="ver-events">Ver Eventos</a>
     </div>
 
     <section class="carrossel-destaque">
@@ -40,11 +40,11 @@
           </svg>
         </button>
         <div class="overflow-hidden w-100">
-          <div id="eventosTrack" class="eventos-track">
-            {% for evento in eventos %}
+          <div id="eventsTrack" class="events-track">
+            {% for evento in events %}
               <div class="evento-col">
                 <div class="card evento-card-bootstrap m-2 d-flex flex-column align-items-center">
-                  <a href="{{ url_for('rotas.detalhes_evento', event_id=evento.id_evento) }}" style="text-decoration:none; color:inherit; width: 100%;">
+                  <a href="{{ url_for('rotas.event_details', event_id=evento.id_evento) }}" style="text-decoration:none; color:inherit; width: 100%;">
                     <div class="evento-imagem-wrapper">
                       <img
                         src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='default_evento.jpg') }}"
@@ -91,7 +91,7 @@
       </div>
     </section>
 
-    <div class="inicio-centro">
+    <div class="home-centro">
       <div class="texto-explicativo">
         <h2>Quem somos?</h2>
         <textarea placeholder="Escreva aqui uma breve explicação..."></textarea>
@@ -102,7 +102,7 @@
     </div>
   </div>
 
-  <footer class="inicio-rodape">
+  <footer class="home-rodape">
     <a href="#">Contate um Suporte.</a>
   </footer>
 
@@ -117,7 +117,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      const track = document.getElementById('eventosTrack');
+      const track = document.getElementById('eventsTrack');
       const totalCards = track.children.length;
       let cardsPerView = getCardsPerView();
       let pos = 0;

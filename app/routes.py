@@ -2,37 +2,37 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import requests
 from app_utils.db_models import *
 from app_utils.utils import upload_image_to_imgbb
-from app_utils.rotas_helpers import usuario_logado, necessita_login, necessita_admin
+from app_utils.routes_helpers import logged_user, requires_login, requires_admin
 
-rotas = Blueprint('rotas', __name__)
+routes = Blueprint('rotas', __name__)
 
-@rotas.route('/')
-def inicio():
-    if usuario_logado() and usuario_logado().tipo.nome == 'admin':
+@routes.route('/')
+def home():
+    if logged_user() and logged_user().tipo.nome == 'admin':
         return redirect(url_for('rotas.admin'))
-    return render_template('inicio.html', user=usuario_logado(),
-                           eventos=Evento.query.order_by(Evento.data_inicio).limit(10).all())
+    return render_template('home.html', user=logged_user(),
+                           events=Evento.query.order_by(Evento.data_inicio).limit(10).all())
 
-@rotas.route('/cadastro', methods=['GET', 'POST'])
-def cadastro():
+@routes.route('/sign_up', methods=['GET', 'POST'])
+def sign_up():
     if request.method == 'POST':
         nome = request.form['nome']
         email = request.form['email']
         senha = request.form['senha']
-        resp = requests.post('http://127.0.0.1:5000/api/cadastro', json={
+        resp = requests.post('http://127.0.0.1:5000/api/sign_up', json={
             'nome': nome,
             'email': email,
             'senha': senha
         })
         if resp.status_code == 201:
-            flash('Cadastro realizado! Faça login.', 'success')
+            flash('sign_up realizado! Faça login.', 'success')
             return redirect(url_for('rotas.login'))
         else:
             flash(resp.json().get('error', 'Erro ao cadastrar usuário.'), 'danger')
-            return redirect(url_for('rotas.cadastro'))
-    return render_template('cadastro.html')
+            return redirect(url_for('rotas.sign_up'))
+    return render_template('sign_up.html')
 
-@rotas.route('/login', methods=['GET', 'POST'])
+@routes.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -45,34 +45,34 @@ def login():
             user = resp.json()['user']
             session['user_id'] = user['id_usuario']
             flash('Bem-vindo, {}!'.format(user['nome']), 'success')
-            return redirect(url_for('rotas.inicio'))
+            return redirect(url_for('rotas.home'))
         else:
             flash(resp.json().get('error', 'Credenciais inválidas.'), 'danger')
     return render_template('login.html')
 
-@rotas.route('/logout')
+@routes.route('/logout')
 def logout():
     session.clear()
     flash('Você saiu da conta.', 'info')
-    return redirect(url_for('rotas.inicio'))
+    return redirect(url_for('rotas.home'))
 
-@rotas.route('/eventos')
-def eventos():
-    eventos = Evento.query.order_by(Evento.data_inicio).all()
-    return render_template('eventos.html', eventos=eventos, user=usuario_logado())
+@routes.route('/events')
+def events():
+    events = Evento.query.order_by(Evento.data_inicio).all()
+    return render_template('events.html', events=events, user=logged_user())
 
-@rotas.route('/eventos/<int:event_id>')
-def detalhes_evento(event_id):
+@routes.route('/events/<int:event_id>')
+def event_details(event_id):
     evento = Evento.query.get_or_404(event_id)
     atividades = Atividade.query.filter_by(id_evento=event_id).order_by(Atividade.data_hora).all()
     inscrito = False
-    user = usuario_logado()
+    user = logged_user()
     if user:
         inscrito = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario, id_evento=event_id).first() is not None
-    return render_template('detalhes_evento.html', evento=evento, atividades=atividades, inscrito=inscrito, user=user)
+    return render_template('event_details.html', evento=evento, atividades=atividades, inscrito=inscrito, user=user)
 
-@rotas.route('/admin', methods=['GET', 'POST'])
-@necessita_admin
+@routes.route('/admin', methods=['GET', 'POST'])
+@requires_admin
 def admin():
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
     if request.method == 'POST':
@@ -90,7 +90,7 @@ def admin():
             "data_fim": request.form['data_fim'],
             "vagas": int(request.form['vagas']),
             "imagem_url": imagem_url,
-            "id_organizador": usuario_logado().id_usuario,
+            "id_organizador": logged_user().id_usuario,
             "atividades": []
         }
         titulos = request.form.getlist('titulo_atividade')
@@ -110,18 +110,18 @@ def admin():
                 "id_tipo_atividade": int(tipos_ids[i])
             })
 
-        resp = requests.post('http://127.0.0.1:5000/api/eventos', json=payload)
+        resp = requests.post('http://127.0.0.1:5000/api/events', json=payload)
         if resp.status_code == 201:
             flash('Evento criado com sucesso!', 'success')
         else:
             flash(f'Erro ao criar evento: {resp.json().get("error", "Erro desconhecido")}', 'danger')
         return redirect(url_for('rotas.admin'))
 
-    return render_template('admin.html', user=usuario_logado(), tipos=tipos)
+    return render_template('admin.html', user=logged_user(), tipos=tipos)
 
-@rotas.route('/perfil')
-@necessita_login
-def perfil():
-    user = usuario_logado()
+@routes.route('/profile')
+@requires_login
+def profile():
+    user = logged_user()
     minhas_inscricoes = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario).all()
-    return render_template('perfil.html', user=user, inscricoes=minhas_inscricoes)
+    return render_template('profile.html', user=user, inscricoes=minhas_inscricoes)

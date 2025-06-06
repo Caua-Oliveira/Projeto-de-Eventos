@@ -4,24 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalhes do Evento</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='detalhes_evento.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='event_details.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
   <nav class="navbar">
-    <a href="{{ url_for('rotas.inicio') }}">Início</a>
-    <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
+    <a href="{{ url_for('rotas.home') }}">Início</a>
+    <a href="{{ url_for('rotas.events') }}">Eventos</a>
     {% if user %}
       {% if user.tipo.nome == 'admin' %}
          <a href="{{ url_for('rotas.admin') }}">Admin</a>
       {% endif %}
         {% if user.tipo.nome not in ['organizador', 'admin'] %}
-             <a href="{{ url_for('rotas.perfil') }}">Perfil</a>
+             <a href="{{ url_for('rotas.profile') }}">Perfil</a>
         {% endif %}
        <a href="{{ url_for('rotas.logout') }}">Logout</a>
     {% else %}
        <a href="{{ url_for('rotas.login') }}">Login</a>
-       <a href="{{ url_for('rotas.cadastro') }}">Cadastro</a>
+       <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
     {% endif %}
   </nav>
 

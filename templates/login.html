@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='cadastro.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='sign_up.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}">
 
 </head>
 <body>
 
     <nav>
-        <a href="{{ url_for('rotas.inicio') }}">Início</a>
-        <a href="{{ url_for('rotas.eventos') }}">Eventos</a>
-        <a href="{{ url_for('rotas.cadastro') }}">Cadastro</a>
+        <a href="{{ url_for('rotas.home') }}">Início</a>
+        <a href="{{ url_for('rotas.events') }}">Eventos</a>
+        <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
     </nav>
 
     <div class="container">
@@ -31,7 +31,7 @@
                 <button type="submit">Entrar</button>
                 <div class="links">
                     <a href="#">Esqueceu a senha?</a>
-                    <a href="{{ url_for('rotas.cadastro') }}">Não possui cadastro?</a>
+                    <a href="{{ url_for('rotas.sign_up') }}">Não possui cadastro?</a>
                 </div>
             </form>
         </div>

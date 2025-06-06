@@ -1,5 +1,5 @@
 from flask import Flask
-from app.rotas import rotas
+from app.routes import routes
 from app.api import api
 from app_utils.db_models import db
 import os
@@ -16,7 +16,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    app.register_blueprint(rotas)
+    app.register_blueprint(routes)
     app.register_blueprint(api, url_prefix='/api')
 
     return app
