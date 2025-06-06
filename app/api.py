@@ -1,14 +1,14 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, Blueprint
+from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from app_utils.utils import evento_to_dict, upload_image_to_imgbb
-from app_utils.db_models import *
+from datetime import datetime
+
+from app_utils.db_models import db, Usuario, TipoUsuario, Evento, Atividade
+from app_utils.utils import evento_to_dict
 
 api = Blueprint('api', __name__)
 
-
-# NOVOS ENDPOINTS API DE LOGIN E CADASTRO
-@app.route('/api/cadastro', methods=['POST'])
-def api_cadastro():
+@api.route('/cadastro', methods=['POST'])
+def cadastro():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Dados JSON ausentes'}), 400
@@ -28,8 +28,8 @@ def api_cadastro():
     db.session.commit()
     return jsonify({'success': True, 'id_usuario': user.id_usuario}), 201
 
-@app.route('/api/login', methods=['POST'])
-def api_login():
+@api.route('/login', methods=['POST'])
+def login():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Dados JSON ausentes'}), 400
@@ -39,7 +39,6 @@ def api_login():
         return jsonify({'error': 'Email e senha são obrigatórios.'}), 400
     user = Usuario.query.filter_by(email=email).first()
     if user and check_password_hash(user.senha, senha):
-        # Retorna dados mínimos do usuário
         user_json = {
             'id_usuario': user.id_usuario,
             'nome': user.nome,
@@ -49,15 +48,13 @@ def api_login():
         return jsonify({'success': True, 'user': user_json}), 200
     return jsonify({'error': 'Credenciais inválidas.'}), 401
 
-# NOVO ENDPOINT API PARA CRIAÇÃO DE EVENTOS
-@app.route('/api/eventos', methods=['POST'])
-def api_criar_evento():
+@api.route('/eventos', methods=['POST'])
+def criar_evento():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Dados JSON ausentes'}), 400
 
     try:
-        # Cria evento
         ev = Evento(
             titulo=data['titulo'],
             descricao=data.get('descricao'),
@@ -69,9 +66,8 @@ def api_criar_evento():
             id_organizador=int(data['id_organizador'])
         )
         db.session.add(ev)
-        db.session.flush()  # Para pegar o id_evento
+        db.session.flush()
 
-        # Cria atividades vinculadas
         atividades = data.get('atividades', [])
         for atv in atividades:
             atividade = Atividade(
@@ -92,8 +88,8 @@ def api_criar_evento():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/events/<int:evento_id>', methods=['GET'])
-def api_detalhes_evento(evento_id):
+@api.route('/events/<int:evento_id>', methods=['GET'])
+def detalhes_evento(evento_id):
     evento = Evento.query.get(evento_id)
     if not evento:
         return jsonify({'error': 'Evento nao encontrado'}), 404
