@@ -35,6 +35,14 @@
             </div>
 
             <div class="form-group">
+                <label for="online"><i class="fas fa-wifi"></i> Evento Online</label>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="online" name="online" value="1" {% if evento.online %}checked{% endif %}>
+                    <label for="online" class="checkbox-label">Este é um evento online</label>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="imagem_evento"><i class="fas fa-image"></i> Nova Imagem do Evento</label>
                 <input type="file" id="imagem_evento" name="imagem_evento" accept="image/*">
                 {% if evento.imagem_url %}

@@ -34,8 +34,11 @@
                     <p><i class="fas fa-map-marker-alt"></i> {{ evento.local or 'Local não informado' }}</p>
                     <p><i class="fas fa-users"></i> {{ evento.vagas }} vagas</p>
                     <p><i class="fas fa-user"></i> Organizador: {{ evento.organizador.nome }}</p>
+                    {% if evento.online %}
+                    <p><i class="fas fa-wifi"></i> <span class="online-badge">Evento Online</span></p>
+                    {% endif %}
                     {% if evento.descricao %}
-                    <p><i class="fas fa-align-left"></i> {{ evento.descricao[:100] }}{% if evento.descricao|length > 100 %}...{% endif %}</p>
+                        <p class="item-description">{{ evento.descricao[:100] }}{% if evento.descricao|length > 100 %}...{% endif %}</p>
                     {% endif %}
                 </div>
             </div>

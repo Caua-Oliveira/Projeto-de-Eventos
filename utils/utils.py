@@ -11,6 +11,7 @@ def event_to_dict(evento):
         "data_inicio": evento.data_inicio.strftime('%Y-%m-%d'),
         "data_fim": evento.data_fim.strftime('%Y-%m-%d'),
         "vagas": evento.vagas,
+        "online": evento.online,  # Add this line
         "organizador": evento.organizador.nome if evento.organizador else None,
         "atividades": [
             {

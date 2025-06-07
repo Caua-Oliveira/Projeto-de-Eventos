@@ -29,6 +29,7 @@ class Evento(db.Model):
     id_organizador = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
     organizador = db.relationship('Usuario')
     imagem_url = db.Column(db.String(500), nullable=True)
+    online = db.Column(db.Boolean, nullable=False, default=False)  # Add this line
 
 class TipoAtividade(db.Model):
     __tablename__ = 'tipos_atividade'

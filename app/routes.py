@@ -203,6 +203,7 @@ def admin_editar_evento(evento_id):
             "data_inicio": request.form['data_inicio'],
             "data_fim": request.form['data_fim'],
             "vagas": int(request.form['vagas']),
+            "online": 'online' in request.form,
             "atividades": []
         }
 
