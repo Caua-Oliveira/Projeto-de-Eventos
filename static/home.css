@@ -69,7 +69,7 @@ body {
 }
 .carousel-custom-controls .carousel-btn {
   position: absolute;
-  top: 33%;
+  top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;

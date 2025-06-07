@@ -2,11 +2,15 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel do Administrador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <nav>
+    <a href="{{ url_for('rotas.home') }}">Início</a>
     <a href="{{ url_for('rotas.events') }}">Eventos</a>
     {% if user %}
         {% if user.tipo.nome in ['organizador', 'admin'] %}
@@ -19,78 +23,271 @@
     {% endif %}
 </nav>
 
-<h1>Criar Novo Evento</h1>
-<form action="{{ url_for('rotas.admin') }}" method="post" enctype="multipart/form-data">
-  <fieldset>
-    <legend>Dados do Evento</legend>
-    <label>Título:</label><br>
-    <input type="text" name="titulo" required><br><br>
-
-    <label>Descrição:</label><br>
-    <textarea name="descricao"></textarea><br><br>
-
-    <label>Local:</label><br>
-    <input type="text" name="local"><br><br>
-
-    <label>Data de Início:</label><br>
-    <input type="date" name="data_inicio" required><br><br>
-
-    <label>Data de Fim:</label><br>
-    <input type="date" name="data_fim" required><br><br>
-
-    <label>Vagas:</label><br>
-    <input type="number" name="vagas" min="0" value="0" required><br><br>
-
-    <label>Imagem do Evento:</label><br>
-    <input type="file" name="imagem_evento" accept="image/*"><br><br>
-  </fieldset>
-
-  <fieldset id="atividades-container">
-    <legend>Atividades</legend>
-
-    <div class="atividade">
-      <label>Título da Atividade:</label><br>
-      <input type="text" name="titulo_atividade" required><br><br>
-
-      <label>Descrição:</label><br>
-      <textarea name="descricao_atividade"></textarea><br><br>
-
-      <label>Data e Hora:</label><br>
-      <input type="datetime-local" name="data_hora_atividade" required><br><br>
-
-      <label>Duração (minutos):</label><br>
-      <input type="number" name="duracao_atividade" min="1" required><br><br>
-
-      <label>Tipo de Atividade:</label><br>
-      <select name="tipo_atividade">
-        {% for tipo in tipos %}
-          <option value="{{ tipo.id_tipo_atividade }}">{{ tipo.nome }}</option>
-        {% endfor %}
-      </select><br><br>
-
-      <button type="button" onclick="removeAtividade(this)">Remover Atividade</button>
-      <hr>
+<div class="admin-container">
+    <div class="admin-header">
+        <h1><i class="fas fa-cogs"></i> Painel Administrativo</h1>
+        <p>Bem-vindo, {{ user.nome }}! Gerencie eventos e usuários do sistema.</p>
     </div>
 
-  </fieldset>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                        <button type="button" class="close-alert">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-  <button type="button" onclick="addAtividade()">Adicionar Outra Atividade</button><br><br>
-  <button type="submit">Criar Evento e Atividades</button>
-</form>
+    <!-- Menu de Opções -->
+    <div class="admin-menu">
+        <div class="menu-grid">
+            <button class="menu-btn active" onclick="showSection('dashboard')" id="btn-dashboard">
+                <i class="fas fa-chart-dashboard"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="menu-btn" onclick="showSection('create-event')" id="btn-create-event">
+                <i class="fas fa-plus-circle"></i>
+                <span>Criar Evento</span>
+            </button>
+            <button class="menu-btn" onclick="showSection('manage-events')" id="btn-manage-events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Gerenciar Eventos</span>
+            </button>
+            <button class="menu-btn" onclick="showSection('manage-users')" id="btn-manage-users">
+                <i class="fas fa-users"></i>
+                <span>Gerenciar Usuários</span>
+            </button>
+        </div>
+    </div>
 
-<script>
-function addAtividade() {
-  const container = document.getElementById('atividades-container');
-  const template = container.querySelector('.atividade').cloneNode(true);
-  template.querySelectorAll('input, textarea').forEach(el => el.value = '');
-  container.appendChild(template);
-}
-function removeAtividade(btn) {
-  const atividades = document.querySelectorAll('.atividade');
-  if (atividades.length > 1) {
-    btn.parentElement.remove();
-  }
-}
-</script>
+    <!-- Seções do Painel -->
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="admin-section active">
+        <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-events">-</h3>
+                    <p>Total de Eventos</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-users">-</h3>
+                    <p>Total de Usuários</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-admins">-</h3>
+                    <p>Administradores</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-organizers">-</h3>
+                    <p>Organizadores</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <h3>Eventos Recentes</h3>
+            <div id="recent-events" class="recent-events">
+                <!-- Carregado via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Criar Evento -->
+    <div id="create-event" class="admin-section">
+        <h2><i class="fas fa-plus-circle"></i> Criar Novo Evento</h2>
+        <form id="create-event-form" class="admin-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="titulo"><i class="fas fa-heading"></i> Título *</label>
+                    <input type="text" id="titulo" name="titulo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="local"><i class="fas fa-map-marker-alt"></i> Local</label>
+                    <input type="text" id="local" name="local">
+                </div>
+
+                <div class="form-group">
+                    <label for="data_inicio"><i class="fas fa-calendar-day"></i> Data Início *</label>
+                    <input type="date" id="data_inicio" name="data_inicio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="data_fim"><i class="fas fa-calendar-day"></i> Data Fim *</label>
+                    <input type="date" id="data_fim" name="data_fim" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="vagas"><i class="fas fa-users"></i> Vagas *</label>
+                    <input type="number" id="vagas" name="vagas" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem_evento"><i class="fas fa-image"></i> Imagem do Evento</label>
+                    <input type="file" id="imagem_evento" name="imagem_evento" accept="image/*">
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="descricao"><i class="fas fa-align-left"></i> Descrição</label>
+                <textarea id="descricao" name="descricao" rows="4"></textarea>
+            </div>
+
+            <!-- Atividades -->
+            <div class="activities-section">
+                <h3><i class="fas fa-tasks"></i> Atividades do Evento</h3>
+                <div id="atividades-container">
+                    <div class="atividade-form">
+                        <div class="atividade-header">
+                            <h4>Atividade 1</h4>
+                            <button type="button" class="remove-activity" onclick="removeActivity(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Título da Atividade *</label>
+                                <input type="text" name="titulo_atividade" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select name="tipo_atividade">
+                                    {% for tipo in tipos %}
+                                    <option value="{{ tipo.id_tipo_atividade }}">{{ tipo.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Data e Hora *</label>
+                                <input type="datetime-local" name="data_hora_atividade" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Duração (minutos) *</label>
+                                <input type="number" name="duracao_atividade" min="1" required>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Descrição da Atividade</label>
+                            <textarea name="descricao_atividade" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-activity" onclick="addActivity()">
+                    <i class="fas fa-plus"></i> Adicionar Atividade
+                </button>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Criar Evento
+                </button>
+                <button type="reset" class="btn-secondary">
+                    <i class="fas fa-undo"></i> Limpar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Gerenciar Eventos -->
+    <div id="manage-events" class="admin-section">
+        <h2><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</h2>
+        <div class="section-controls">
+            <button class="btn-refresh" onclick="loadEvents()">
+                <i class="fas fa-sync-alt"></i> Atualizar Lista
+            </button>
+        </div>
+        <div id="events-list" class="items-list">
+            <!-- Carregado via JavaScript -->
+        </div>
+    </div>
+
+    <!-- Gerenciar Usuários -->
+    <div id="manage-users" class="admin-section">
+        <h2><i class="fas fa-users"></i> Gerenciar Usuários</h2>
+        <div class="section-controls">
+            <button class="btn-refresh" onclick="loadUsers()">
+                <i class="fas fa-sync-alt"></i> Atualizar Lista
+            </button>
+        </div>
+        <div id="users-list" class="items-list">
+            <!-- Carregado via JavaScript -->
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal para Editar Evento -->
+<div id="edit-event-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Editar Evento</h3>
+            <span class="close-modal" onclick="closeModal('edit-event-modal')">&times;</span>
+        </div>
+        <form id="edit-event-form" class="admin-form">
+            <input type="hidden" id="edit-event-id">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="edit-titulo">Título *</label>
+                    <input type="text" id="edit-titulo" name="titulo" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-local">Local</label>
+                    <input type="text" id="edit-local" name="local">
+                </div>
+                <div class="form-group">
+                    <label for="edit-data-inicio">Data Início *</label>
+                    <input type="date" id="edit-data-inicio" name="data_inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-data-fim">Data Fim *</label>
+                    <input type="date" id="edit-data-fim" name="data_fim" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-vagas">Vagas *</label>
+                    <input type="number" id="edit-vagas" name="vagas" min="1" required>
+                </div>
+            </div>
+            <div class="form-group full-width">
+                <label for="edit-descricao">Descrição</label>
+                <textarea id="edit-descricao" name="descricao" rows="4"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+                <button type="button" class="btn-secondary" onclick="closeModal('edit-event-modal')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='admin.js') }}"></script>
 </body>
 </html>

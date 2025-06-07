@@ -1,6 +1,6 @@
 from flask import redirect, url_for, session, flash
 from functools import wraps
-from app_utils.db_models import Usuario
+from utils.db_models import Usuario
 
 def logged_user():
     uid = session.get('user_id')

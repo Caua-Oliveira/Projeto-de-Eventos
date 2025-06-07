@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Gerenciar Usuários{% endblock %}
+{% block header_subtitle %}Gerencie tipos e permissões de usuários.{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <h2><i class="fas fa-users"></i> Gerenciar Usuários</h2>
+
+    <div class="items-list">
+        {% if usuarios %}
+            {% for usuario in usuarios %}
+            <div class="item-card">
+                <div class="item-header">
+                    <h4 class="item-title">{{ usuario.nome }}</h4>
+                    <div class="item-actions">
+                        <form method="POST" action="{{ url_for('rotas.admin_alterar_tipo_usuario', user_id=usuario.id_usuario) }}" style="display: inline;">
+                            <select name="tipo" onchange="this.form.submit()" class="user-type-select">
+                                {% for tipo in tipos_usuario %}
+                                <option value="{{ tipo.nome }}" {% if usuario.tipo.nome == tipo.nome %}selected{% endif %}>
+                                    {{ tipo.nome.title() }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                        {% if usuario.id_usuario != user.id_usuario %}
+                        <form method="POST" action="{{ url_for('rotas.admin_deletar_usuario', user_id=usuario.id_usuario) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja deletar este usuário?')">
+                            <button type="submit" class="btn-delete">
+                                <i class="fas fa-trash"></i> Deletar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="item-info">
+                    <p><i class="fas fa-envelope"></i> {{ usuario.email }}</p>
+                    <p><i class="fas fa-user-tag"></i> Tipo: {{ usuario.tipo.nome.title() }}</p>
+                    {% if usuario.id_usuario == user.id_usuario %}
+                    <p class="text-info"><i class="fas fa-info-circle"></i> Este é o seu usuário</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Nenhum usuário encontrado.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

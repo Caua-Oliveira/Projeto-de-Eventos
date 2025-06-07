@@ -1,0 +1,136 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Criar Evento{% endblock %}
+{% block header_subtitle %}Adicione um novo evento ao sistema.{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <h2><i class="fas fa-plus-circle"></i> Criar Novo Evento</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="admin-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="titulo"><i class="fas fa-heading"></i> Título *</label>
+                <input type="text" id="titulo" name="titulo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="local"><i class="fas fa-map-marker-alt"></i> Local</label>
+                <input type="text" id="local" name="local">
+            </div>
+
+            <div class="form-group">
+                <label for="data_inicio"><i class="fas fa-calendar-day"></i> Data Início *</label>
+                <input type="date" id="data_inicio" name="data_inicio" required>
+            </div>
+
+            <div class="form-group">
+                <label for="data_fim"><i class="fas fa-calendar-day"></i> Data Fim *</label>
+                <input type="date" id="data_fim" name="data_fim" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vagas"><i class="fas fa-users"></i> Vagas *</label>
+                <input type="number" id="vagas" name="vagas" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="imagem_evento"><i class="fas fa-image"></i> Imagem do Evento</label>
+                <input type="file" id="imagem_evento" name="imagem_evento" accept="image/*">
+            </div>
+        </div>
+
+        <div class="form-group full-width">
+            <label for="descricao"><i class="fas fa-align-left"></i> Descrição</label>
+            <textarea id="descricao" name="descricao" rows="4"></textarea>
+        </div>
+
+        <!-- Atividades -->
+        <div class="activities-section">
+            <h3><i class="fas fa-tasks"></i> Atividades do Evento</h3>
+            <div id="atividades-container">
+                <div class="atividade-form">
+                    <div class="atividade-header">
+                        <h4>Atividade 1</h4>
+                        <button type="button" class="remove-activity" onclick="removeActivity(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Título da Atividade *</label>
+                            <input type="text" name="titulo_atividade" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo_atividade">
+                                {% for tipo in tipos %}
+                                <option value="{{ tipo.id_tipo_atividade }}">{{ tipo.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data e Hora *</label>
+                            <input type="datetime-local" name="data_hora_atividade" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Duração (minutos) *</label>
+                            <input type="number" name="duracao_atividade" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Descrição da Atividade</label>
+                        <textarea name="descricao_atividade" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn-add-activity" onclick="addActivity()">
+                <i class="fas fa-plus"></i> Adicionar Atividade
+            </button>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Criar Evento
+            </button>
+            <a href="{{ url_for('rotas.admin_eventos') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addActivity() {
+    const container = document.getElementById('atividades-container');
+    const template = container.querySelector('.atividade-form').cloneNode(true);
+
+    // Limpar campos do template
+    template.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+
+    // Atualizar número da atividade
+    const activityNumber = container.children.length + 1;
+    template.querySelector('h4').textContent = `Atividade ${activityNumber}`;
+
+    container.appendChild(template);
+}
+
+function removeActivity(button) {
+    const container = document.getElementById('atividades-container');
+    const activities = container.querySelectorAll('.atividade-form');
+
+    if (activities.length > 1) {
+        button.closest('.atividade-form').remove();
+
+        // Renumerar atividades
+        container.querySelectorAll('.atividade-form').forEach((activity, index) => {
+            activity.querySelector('h4').textContent = `Atividade ${index + 1}`;
+        });
+    } else {
+        alert('Deve haver pelo menos uma atividade');
+    }
+}
+</script>
+{% endblock %}

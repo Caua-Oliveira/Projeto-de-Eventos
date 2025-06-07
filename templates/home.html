@@ -13,16 +13,20 @@
   <nav>
       <a href="{{ url_for('rotas.home') }}">Início</a>
       <a href="{{ url_for('rotas.events') }}">Eventos</a>
-      {% if user %}
+      {% if user and user.tipo.nome not in ['admin'] %}
            <a href="{{ url_for('rotas.profile') }}">Perfil</a>
-           <a href="{{ url_for('rotas.logout') }}">Logout</a>
-          {% if user.tipo.nome in ['organizador','admin'] %}
-               <a href="{{ url_for('rotas.admin') }}">Criar Evento</a>
-          {% endif %}
-      {% else %}
-           <a href="{{ url_for('rotas.login') }}">Login</a>
+        {% endif %}
+          {% if not user %}
+               <a href="{{ url_for('rotas.login') }}">Login</a>
            <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
       {% endif %}
+          {% if user and user.tipo.nome in ['organizador','admin'] %}
+               <a href="{{ url_for('rotas.admin') }}">Admin</a>
+          {% endif %}
+        {% if user %}
+             <a href="{{ url_for('rotas.logout') }}">Logout</a>
+        {% endif %}
+
   </nav>
   <div class="home-wrapper">
     <div class="home-topo">
@@ -66,7 +70,7 @@
               </div>
             {% else %}
               <div class="evento-col">
-                <div class="card evento-card-bootstrap h-100 m-2" style="opacity:0.5;">
+                <div class="card evento-card-bootstrap" style="opacity:0.5;">
                   <div class="evento-imagem-wrapper">
                     <img
                       src="{{ url_for('static', filename='default_evento.jpg') }}"

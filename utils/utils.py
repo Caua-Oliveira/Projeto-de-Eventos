@@ -1,7 +1,7 @@
-
-from app_utils.db_models import *
+from utils.db_models import *
 import requests
-# --- SERIALIZERS ---
+
+
 def event_to_dict(evento):
     return {
         "id": evento.id_evento,

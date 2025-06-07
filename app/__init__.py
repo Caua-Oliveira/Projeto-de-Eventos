@@ -1,7 +1,7 @@
 from flask import Flask
 from app.routes import routes
 from app.api import api
-from app_utils.db_models import db
+from utils.db_models import db
 import os
 import json
 
