@@ -8,17 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
-  <nav class="navbar">
-    <a href="{{ url_for('rotas.home') }}">Início</a>
-    <a href="{{ url_for('rotas.events') }}">Eventos</a>
-    {% if user %}
-    <a href="{{ url_for('rotas.profile') }}">Perfil</a>
-       <a href="{{ url_for('rotas.logout') }}">Logout</a>
-    {% else %}
-       <a href="{{ url_for('rotas.login') }}">Login</a>
-       <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
-    {% endif %}
-  </nav>
+  {% include 'nav_bar.html' %}
 <br>
   <div class="profile-wrapper">
     <div class="profile-container">

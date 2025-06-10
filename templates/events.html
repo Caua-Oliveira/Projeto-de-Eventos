@@ -8,24 +8,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
-<nav>
-    <a href="{{ url_for('rotas.home') }}">Início</a>
-    <a href="{{ url_for('rotas.events') }}">Eventos</a>
-    {% if user %}
-        {% if user.tipo.nome in ['organizador', 'admin'] %}
-        <a href="{{ url_for('rotas.admin') }}">Admin</a>
-        {% endif %}
-        {% if user.tipo.nome not in ['organizador', 'admin'] %}
-        <a href="{{ url_for('rotas.profile') }}">Perfil</a>
-        {% endif %}
-        <a href="{{ url_for('rotas.logout') }}">Logout</a>
+  {% include 'nav_bar.html' %}
 
-    {% else %}
-        <a href="{{ url_for('rotas.login') }}">Login</a>
-        <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
-    {% endif %}
-</nav>
-
+<div class="filter-section">
+    <form method="get" class="filter-form">
+        <label class="filter-checkbox">
+            <input type="checkbox" name="online" value="1" {% if show_online %}checked{% endif %}>
+            <span>Online</span>
+        </label>
+        <label class="filter-checkbox">
+            <input type="checkbox" name="irl" value="1" {% if show_irl %}checked{% endif %}>
+            <span>Presencial</span>
+        </label>
+        <button type="submit" class="filter-btn">Filtrar</button>
+    </form>
+</div>
   <div class="event-list-container">
     <h2>Eventos disponíveis:</h2>
 

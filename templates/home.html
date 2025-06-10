@@ -9,25 +9,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
-<body>
-  <nav>
-      <a href="{{ url_for('rotas.home') }}">Início</a>
-      <a href="{{ url_for('rotas.events') }}">Eventos</a>
-      {% if user and user.tipo.nome not in ['admin'] %}
-           <a href="{{ url_for('rotas.profile') }}">Perfil</a>
-        {% endif %}
-          {% if not user %}
-               <a href="{{ url_for('rotas.login') }}">Login</a>
-           <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
-      {% endif %}
-          {% if user and user.tipo.nome in ['organizador','admin'] %}
-               <a href="{{ url_for('rotas.admin') }}">Admin</a>
-          {% endif %}
-        {% if user %}
-             <a href="{{ url_for('rotas.logout') }}">Logout</a>
-        {% endif %}
 
-  </nav>
+<body>
+  {% include 'nav_bar.html' %}
   <div class="home-wrapper">
     <div class="home-topo">
       <h1>Seja Bem-Vindo ao Sistema de Eventos!!!</h1>

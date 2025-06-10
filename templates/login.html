@@ -9,12 +9,7 @@
 
 </head>
 <body>
-
-    <nav>
-        <a href="{{ url_for('rotas.home') }}">Início</a>
-        <a href="{{ url_for('rotas.events') }}">Eventos</a>
-        <a href="{{ url_for('rotas.sign_up') }}">Cadastro</a>
-    </nav>
+  {% include 'nav_bar.html' %}
 
     <div class="container">
         <div class="section">

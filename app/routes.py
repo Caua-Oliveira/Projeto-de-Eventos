@@ -50,8 +50,20 @@ def logout():
 
 @routes.route('/events')
 def events():
-    events = get_all_events()
-    return render_template('events.html', events=events, user=logged_user())
+    has_param = 'online' in request.args or 'irl' in request.args
+    show_online = request.args.get('online') == '1' or not has_param
+    show_irl = request.args.get('irl') == '1' or not has_param
+
+
+    if show_online and show_irl:
+        events = Evento.query.all()
+    elif show_online:
+        events = Evento.query.filter_by(online=True).all()
+    elif show_irl:
+        events = Evento.query.filter_by(online=False).all()
+    else:
+        events = []
+    return render_template('events.html', events=events, user=logged_user(), show_online=show_online, show_irl=show_irl)
 
 @routes.route('/events/<int:event_id>')
 def event_details(event_id):
