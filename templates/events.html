@@ -34,7 +34,7 @@
       <a href="{{ url_for('rotas.event_details', event_id=ev.id_evento) }}">{{ ev.titulo }}</a>
       <div class="descricao">{{ ev.descricao or '—' }}</div>
       <div class="info-extra">
-        <span>Data: {{ ev.data_inicio }}</span>
+        <span>Data: {{ ev.data_inicio.strftime('%d/%m/%Y') }}</span>
         <span>Local: {{ ev.local or '—' }}</span>
       </div>
     </div>

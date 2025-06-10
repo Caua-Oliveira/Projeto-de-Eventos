@@ -51,7 +51,7 @@
                   <a href="{{ url_for('rotas.event_details', event_id=evento.id_evento) }}" style="text-decoration:none; color:inherit; width: 100%;">
                     <div class="evento-imagem-wrapper">
                       <img
-                        src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='default_evento.jpg') }}"
+                        src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='pluralize.png') }}"
                         class="evento-imagem-top"
                         alt="Imagem do Evento"
                       />
@@ -59,7 +59,7 @@
                     <div class="card-body text-center d-flex flex-column justify-content-center">
                       <h5 class="card-title mb-2">{{ evento.titulo }}</h5>
                       <p style="font-size:0.95em; color:#6f42c1; margin-bottom: 0.5em;">
-                        {{ evento.data_inicio if evento.data_inicio else '' }}
+                        {{ evento.data_inicio.strftime('%d/%m/%Y') if evento.data_inicio else '' }}
                       </p>
                       <p style="font-size:0.9em;">
                         {{ evento.local if evento.local else '' }}

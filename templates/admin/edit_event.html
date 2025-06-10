@@ -9,6 +9,13 @@
 
     <form method="POST" enctype="multipart/form-data" class="admin-form">
         <div class="form-grid">
+                        <div class="form-group">
+                <label for="online"><i class="fas fa-wifi"></i> Evento Online</label>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="online" name="online" value="1" {% if evento.online %}checked{% endif %}>
+                    <label for="online" class="checkbox-label"><<</label>
+                </div>
+            </div>
             <div class="form-group">
                 <label for="titulo"><i class="fas fa-heading"></i> Título *</label>
                 <input type="text" id="titulo" name="titulo" value="{{ evento.titulo }}" required>
@@ -34,14 +41,10 @@
                 <input type="number" id="vagas" name="vagas" min="1" value="{{ evento.vagas }}" required>
             </div>
 
-            <div class="form-group">
-                <label for="online"><i class="fas fa-wifi"></i> Evento Online</label>
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="online" name="online" value="1" {% if evento.online %}checked{% endif %}>
-                    <label for="online" class="checkbox-label">Este é um evento online</label>
-                </div>
-            </div>
-
+        <div class="form-group full-width">
+            <label for="descricao"><i class="fas fa-align-left"></i> Descrição</label>
+            <textarea id="descricao" name="descricao" rows="4">{{ evento.descricao or '' }}</textarea>
+        </div>
             <div class="form-group">
                 <label for="imagem_evento"><i class="fas fa-image"></i> Nova Imagem do Evento</label>
                 <input type="file" id="imagem_evento" name="imagem_evento" accept="image/*">
@@ -51,11 +54,10 @@
             </div>
         </div>
 
-        <div class="form-group full-width">
-            <label for="descricao"><i class="fas fa-align-left"></i> Descrição</label>
-            <textarea id="descricao" name="descricao" rows="4">{{ evento.descricao or '' }}</textarea>
-        </div>
 
+
+        <br>
+        <br>
         <!-- Atividades -->
         <div class="activities-section">
             <h3><i class="fas fa-tasks"></i> Atividades do Evento</h3>
@@ -167,7 +169,7 @@
             <button type="submit" class="btn-primary">
                 <i class="fas fa-save"></i> Salvar Alterações
             </button>
-            <a href="{{ url_for('rotas.admin_eventos') }}" class="btn-secondary">
+            <a href="{{ url_for('rotas.admin_events') }}" class="btn-secondary">
                 <i class="fas fa-arrow-left"></i> Voltar para Lista
             </a>
             <a href="{{ url_for('rotas.event_details', event_id=evento.id_evento) }}" class="btn-info" target="_blank">

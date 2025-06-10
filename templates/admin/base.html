@@ -37,15 +37,15 @@
                     <i class="fas fa-chart-dashboard"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ url_for('rotas.admin_criar_evento') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_criar_evento' %}active{% endif %}">
+                <a href="{{ url_for('rotas.admin_create_event') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_create_event' %}active{% endif %}">
                     <i class="fas fa-plus-circle"></i>
                     <span>Criar Evento</span>
                 </a>
-                <a href="{{ url_for('rotas.admin_eventos') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_eventos' %}active{% endif %}">
+                <a href="{{ url_for('rotas.admin_events') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_events' %}active{% endif %}">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Gerenciar Eventos</span>
                 </a>
-                <a href="{{ url_for('rotas.admin_usuarios') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_usuarios' %}active{% endif %}">
+                <a href="{{ url_for('rotas.admin_users') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_users' %}active{% endif %}">
                     <i class="fas fa-users"></i>
                     <span>Gerenciar Usuários</span>
                 </a>
