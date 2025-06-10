@@ -35,8 +35,8 @@
         <ul>
           {% for ins in inscricoes %}
             <li>
-              <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
-                {{ ins.evento.titulo }}
+              <a href="{{ url_for('rotas.event_details', event_id=ins['id_evento']) }}">
+                {{ ins['titulo'] }}
               </a>
             </li>
           {% endfor %}
@@ -52,8 +52,8 @@
         <ul>
           {% for ins in participados %}
             <li>
-              <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
-                {{ ins.evento.titulo }}
+              <a href="{{ url_for('rotas.event_details', event_id=ins['id_evento']) }}">
+                {{ ins['titulo'] }}
               </a>
             </li>
           {% endfor %}

@@ -108,7 +108,12 @@ def api_event_details(evento_id):
 def api_list_events():
     """Lista todos os eventos"""
     try:
-        eventos = Evento.query.order_by(Evento.data_inicio.desc()).all()
+        quantidade = request.args.get('quantidade', type=int)
+        query = Evento.query.order_by(Evento.data_inicio.desc())
+        if quantidade is not None:
+            eventos = query.limit(quantidade).all()
+        else:
+            eventos = query.all()
         eventos_list = []
         for evento in eventos:
             eventos_list.append({
@@ -116,8 +121,8 @@ def api_list_events():
                 'titulo': evento.titulo,
                 'descricao': evento.descricao,
                 'local': evento.local,
-                'data_inicio': evento.data_inicio.strftime('%Y-%m-%d'),
-                'data_fim': evento.data_fim.strftime('%Y-%m-%d'),
+                'data_inicio': evento.data_inicio.strftime('%d/%m/%Y'),
+                'data_fim': evento.data_fim.strftime('%d/%m/%Y'),
                 'vagas': evento.vagas,
                 'online': evento.online,
                 'organizador': evento.organizador.nome if evento.organizador else 'N/A'
@@ -281,16 +286,7 @@ def api_get_user_events(user_id):
 
         for inscricao in inscricoes:
             evento = inscricao.evento
-            eventos_list.append({
-                'id_evento': evento.id_evento,
-                'titulo': evento.titulo,
-                'descricao': evento.descricao,
-                'local': evento.local,
-                'data_inicio': evento.data_inicio.strftime('%Y-%m-%d'),
-                'data_fim': evento.data_fim.strftime('%Y-%m-%d'),
-                'vagas': evento.vagas,
-                'organizador': evento.organizador.nome if evento.organizador else 'N/A'
-            })
+            eventos_list.append(event_to_dict(evento))
         return jsonify({'eventos': eventos_list}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

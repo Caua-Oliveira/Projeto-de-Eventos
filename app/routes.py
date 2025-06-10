@@ -6,8 +6,11 @@ from app.helpers import logged_user, requires_login, requires_admin
 
 routes = Blueprint('rotas', __name__)
 
+API_URL = 'http://127.0.0.1:5000/api'
+
 @routes.route('/')
 def home():
+    # Busca eventos via API para o home
     return render_template('home.html', user=logged_user(),
                            events=Evento.query.order_by(Evento.data_inicio).limit(10).all())
 
@@ -17,7 +20,7 @@ def sign_up():
         nome = request.form['nome']
         email = request.form['email']
         senha = request.form['senha']
-        resp = requests.post('http://127.0.0.1:5000/api/sign_up', json={
+        resp = requests.post(f'{API_URL}/sign_up', json={
             'nome': nome,
             'email': email,
             'senha': senha
@@ -35,7 +38,7 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
-        resp = requests.post('http://127.0.0.1:5000/api/login', json={
+        resp = requests.post(f'{API_URL}/login', json={
             'email': email,
             'senha': senha
         })
@@ -68,68 +71,90 @@ def event_details(event_id):
     if user:
         inscrito = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario, id_evento=event_id).first() is not None
     return render_template('event_details.html', evento=evento, atividades=atividades, inscrito=inscrito, user=user)
-
 @routes.route('/profile')
 @requires_login
 def profile():
     user = logged_user()
-    minhas_inscricoes = InscricaoEvento.query.filter_by(id_usuario=user.id_usuario).all()
+    minhas_inscricoes = []
+    resp = requests.get(f'{API_URL}/users/{user.id_usuario}/events')
+    if resp.status_code == 200:
+        minhas_inscricoes = resp.json().get('eventos', [])
     return render_template('profile.html', user=user, inscricoes=minhas_inscricoes)
 
+@routes.route('/events/<int:evento_id>/inscrever', methods=['POST'])
+@requires_login
+def inscrever_evento(evento_id):
+    user = logged_user()
+    resp = requests.post(
+        f"{API_URL}/events/{evento_id}/register",
+        json={'id_usuario': user.id_usuario}
+    )
+    if resp.status_code == 201:
+        flash('Inscrição realizada com sucesso!', 'success')
+    else:
+        flash(resp.json().get('error', 'Erro ao se inscrever no evento.'), 'danger')
+    return redirect(url_for('rotas.event_details', event_id=evento_id))
 
 # === ROTAS ADMINISTRATIVAS ===
 @routes.route('/admin')
 @requires_admin
 def admin():
-    """Dashboard administrativo"""
-    # Estatísticas
-    total_eventos = Evento.query.count()
-    total_usuarios = Usuario.query.count()
-    total_admins = Usuario.query.join(TipoUsuario).filter(TipoUsuario.nome == 'admin').count()
-    total_organizadores = Usuario.query.join(TipoUsuario).filter(TipoUsuario.nome == 'organizador').count()
-
-    # Eventos recentes
-    eventos_recentes = Evento.query.order_by(Evento.data_inicio.desc()).limit(5).all()
-
+    # Dashboard administrativo
     stats = {
-        'total_eventos': total_eventos,
-        'total_usuarios': total_usuarios,
-        'total_admins': total_admins,
-        'total_organizadores': total_organizadores
+        'total_eventos': 0,
+        'total_usuarios': 0,
+        'total_admins': 0,
+        'total_organizadores': 0
     }
+    eventos_recentes = []
+
+    # Busca via API
+    eventos_resp = requests.get(f'{API_URL}/events')
+    usuarios_resp = requests.get(f'{API_URL}/users')
+    if eventos_resp.status_code == 200:
+        eventos = eventos_resp.json().get('eventos', [])
+        stats['total_eventos'] = len(eventos)
+        eventos_recentes = sorted(eventos, key=lambda e: e['data_inicio'], reverse=True)[:5]
+    if usuarios_resp.status_code == 200:
+        usuarios = usuarios_resp.json().get('usuarios', [])
+        stats['total_usuarios'] = len(usuarios)
+        stats['total_admins'] = sum(1 for u in usuarios if u['tipo'] == 'admin')
+        stats['total_organizadores'] = sum(1 for u in usuarios if u['tipo'] == 'organizador')
 
     return render_template('admin/dashboard.html',
                            user=logged_user(),
                            stats=stats,
                            eventos_recentes=eventos_recentes)
 
-
 @routes.route('/admin/eventos')
 @requires_admin
 def admin_eventos():
-    """Gerenciar eventos"""
-    eventos = Evento.query.order_by(Evento.data_inicio.desc()).all()
+    eventos = []
+    resp = requests.get(f'{API_URL}/events')
+    if resp.status_code == 200:
+        eventos = resp.json().get('eventos', [])
     return render_template('admin/eventos.html',
                            user=logged_user(),
                            eventos=eventos)
 
-
 @routes.route('/admin/usuarios')
 @requires_admin
 def admin_usuarios():
-    """Gerenciar usuários"""
-    usuarios = Usuario.query.all()
-    tipos_usuario = TipoUsuario.query.all()
+    usuarios = []
+    tipos_usuario = []
+    usuarios_resp = requests.get(f'{API_URL}/users')
+    if usuarios_resp.status_code == 200:
+        usuarios = usuarios_resp.json().get('usuarios', [])
+        # Obter tipos de usuário pelo banco (pois não tem rota API para isso)
+        tipos_usuario = TipoUsuario.query.all()
     return render_template('admin/usuarios.html',
                            user=logged_user(),
                            usuarios=usuarios,
                            tipos_usuario=tipos_usuario)
 
-
 @routes.route('/admin/criar-evento', methods=['GET', 'POST'])
 @requires_admin
 def admin_criar_evento():
-    """Criar novo evento"""
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
 
     if request.method == 'POST':
@@ -173,7 +198,7 @@ def admin_criar_evento():
             })
 
         # Criar evento via API
-        resp = requests.post('http://127.0.0.1:5000/api/events', json=payload)
+        resp = requests.post(f'{API_URL}/events', json=payload)
         if resp.status_code == 201:
             flash('Evento criado com sucesso!', 'success')
             return redirect(url_for('rotas.admin_eventos'))
@@ -184,14 +209,20 @@ def admin_criar_evento():
                            user=logged_user(),
                            tipos=tipos)
 
-
 @routes.route('/admin/editar-evento/<int:evento_id>', methods=['GET', 'POST'])
 @requires_admin
 def admin_editar_evento(evento_id):
-    """Editar evento existente"""
-    evento = Evento.query.get_or_404(evento_id)
+    evento = None
+    atividades = []
+    resp = requests.get(f'{API_URL}/events/{evento_id}')
+    if resp.status_code == 200:
+        evento = resp.json()
+        atividades = evento.get('atividades', [])
+    else:
+        flash('Evento não encontrado!', 'danger')
+        return redirect(url_for('rotas.admin_eventos'))
+
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
-    atividades = Atividade.query.filter_by(id_evento=evento_id).all()
 
     if request.method == 'POST':
         # Dados atualizados do evento
@@ -232,7 +263,7 @@ def admin_editar_evento(evento_id):
             })
 
         # Atualizar evento via API
-        resp = requests.put(f'http://127.0.0.1:5000/api/events/{evento_id}', json=payload)
+        resp = requests.put(f'{API_URL}/events/{evento_id}', json=payload)
         if resp.status_code == 200:
             flash('Evento atualizado com sucesso!', 'success')
             return redirect(url_for('rotas.admin_eventos'))
@@ -245,12 +276,10 @@ def admin_editar_evento(evento_id):
                            atividades=atividades,
                            tipos=tipos)
 
-
 @routes.route('/admin/deletar-evento/<int:evento_id>', methods=['POST'])
 @requires_admin
 def admin_deletar_evento(evento_id):
-    """Deletar evento"""
-    resp = requests.delete(f'http://127.0.0.1:5000/api/events/{evento_id}')
+    resp = requests.delete(f'{API_URL}/events/{evento_id}')
     if resp.status_code == 200:
         flash('Evento deletado com sucesso!', 'success')
     else:
@@ -258,14 +287,12 @@ def admin_deletar_evento(evento_id):
 
     return redirect(url_for('rotas.admin_eventos'))
 
-
 @routes.route('/admin/alterar-tipo-usuario/<int:user_id>', methods=['POST'])
 @requires_admin
 def admin_alterar_tipo_usuario(user_id):
-    """Alterar tipo de usuário"""
     novo_tipo = request.form['tipo']
 
-    resp = requests.put(f'http://127.0.0.1:5000/api/users/{user_id}/tipo',
+    resp = requests.put(f'{API_URL}/users/{user_id}/tipo',
                         json={'tipo': novo_tipo})
     if resp.status_code == 200:
         flash('Tipo de usuário atualizado com sucesso!', 'success')
@@ -274,12 +301,10 @@ def admin_alterar_tipo_usuario(user_id):
 
     return redirect(url_for('rotas.admin_usuarios'))
 
-
 @routes.route('/admin/deletar-usuario/<int:user_id>', methods=['POST'])
 @requires_admin
 def admin_deletar_usuario(user_id):
-    """Deletar usuário"""
-    resp = requests.delete(f'http://127.0.0.1:5000/api/users/{user_id}')
+    resp = requests.delete(f'{API_URL}/users/{user_id}')
     if resp.status_code == 200:
         flash('Usuário deletado com sucesso!', 'success')
     else:
