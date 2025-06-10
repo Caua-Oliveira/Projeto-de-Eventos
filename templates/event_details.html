@@ -29,13 +29,11 @@
     <h2>{{ evento.titulo }}</h2>
 
     <div class="carrossel">
-      <button class="seta" id="anterior">&#8249;</button>
       <img
-        src="{{ evento.imagens[0] if evento.imagens else url_for('static', filename='default.jpg') }}"
+        src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='default.jpg') }}"
         alt="Imagem do evento"
         id="imagem-carrossel"
       />
-      <button class="seta" id="proximo">&#8250;</button>
     </div>
 
     <div class="info-extra">
@@ -82,7 +80,9 @@
         <button class="btn-inscricao" disabled>Inscrito</button>
       {% else %}
       {% if user.tipo.nome not in ['organizador', 'admin'] %}
-          <button class="btn-inscricao">Inscrever-se!</button>
+          <a href="{{ url_for('rotas.login') }}">
+            <button class="btn-inscricao">Inscrever-se!</button>
+          </a>
         {% else %}
         <button class="btn-inscricao" disabled>Você não pode se inscrever neste evento</button>
       {% endif %}

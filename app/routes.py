@@ -77,7 +77,6 @@ def profile():
     return render_template('profile.html', user=user, inscricoes=minhas_inscricoes)
 
 
-
 # === ROTAS ADMINISTRATIVAS ===
 @routes.route('/admin')
 @requires_admin

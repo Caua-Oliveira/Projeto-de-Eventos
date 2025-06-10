@@ -25,40 +25,16 @@ h2 {
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
+  height: 350px; /* Fixed height */
+  border-radius: 8px;
+  overflow: hidden; /* Ensures border-radius is respected */
+  background-color: #eaeaea; /* Optional: fallback background */
 }
 
 .carrossel img {
   width: 100%;
-  max-height: 500px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.seta {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #6f42c1;
-  color: white;
-  border: none;
-  font-size: 2rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 2;
-}
-
-#seta:hover {
-  background-color: #5a349c;
-}
-
-#anterior {
-  left: 10px;
-}
-
-#proximo {
-  right: 10px;
+  height: 100%;
+  object-fit: cover; /* Fills the box and keeps image proportion */
 }
 
 .info-extra {

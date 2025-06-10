@@ -296,5 +296,41 @@ def api_get_user_events(user_id):
         return jsonify({'error': str(e)}), 500
 
 
+@api.route('/events/<int:evento_id>/register', methods=['POST'])
+def api_register_to_event(evento_id):
+    """Inscreve um usuário em um evento, se tiver vagas disponíveis"""
+    data = request.get_json()
+    if not data or 'id_usuario' not in data:
+        return jsonify({'error': 'Dados JSON ausentes ou id_usuario não fornecido'}), 400
+
+    try:
+        usuario = Usuario.query.get(data['id_usuario'])
+        if not usuario:
+            return jsonify({'error': 'Usuário não encontrado'}), 404
+
+        evento = Evento.query.get(evento_id)
+        if not evento:
+            return jsonify({'error': 'Evento não encontrado'}), 404
+
+        if evento.vagas <= 0:
+            return jsonify({'error': 'Não há vagas disponíveis para este evento.'}), 400
+
+        inscricao_existente = InscricaoEvento.query.filter_by(id_usuario=usuario.id_usuario, id_evento=evento_id).first()
+        if inscricao_existente:
+            return jsonify({'error': 'Usuário já inscrito neste evento.'}), 400
+
+        inscricao = InscricaoEvento(id_usuario=usuario.id_usuario, id_evento=evento_id)
+        db.session.add(inscricao)
+        db.session.commit()
+
+        # Decrementar vagas disponíveis
+        evento.vagas -= 1
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Usuário inscrito com sucesso.'}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
