@@ -22,6 +22,6 @@ def requires_admin(f):
         user = logged_user()
         if not user or user.tipo.nome != 'admin':
             flash('Acesso negado.', 'danger')
-            return redirect(url_for('home'))
+            return redirect(url_for('rotas.home'))
         return f(*args, **kwargs)
     return is_admin

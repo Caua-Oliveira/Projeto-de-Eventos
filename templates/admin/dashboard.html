@@ -22,16 +22,16 @@
     </div>
   </div>
   <div>
-    <h3 style="color:#6f42c1; font-size:1.1em; margin-bottom:10px;">Eventos Recentes</h3>
+    <h3 class="recent-events-title">Eventos Recentemente Adicionados</h3>
     <div class="items-list">
       {% if eventos_recentes %}
         {% for evento in eventos_recentes %}
         <div class="item-card">
           <div class="item-title">{{ evento.titulo }}</div>
-          <div style="color:#888; font-size:0.96em;">
+          <div class="item-meta">
             <span><i class="fas fa-calendar"></i> {{ evento.data_inicio.strftime('%d/%m/%Y') }} - {{ evento.data_fim.strftime('%d/%m/%Y') }}</span>
-            <span style="margin-left:8px;"><i class="fas fa-map-marker-alt"></i> {{ evento.local or 'Local não informado' }}</span>
-            <span style="margin-left:8px;"><i class="fas fa-users"></i> {{ evento.vagas }} vagas</span>
+            <span><i class="fas fa-map-marker-alt"></i> {{ evento.local or 'Local não informado' }}</span>
+            <span><i class="fas fa-users"></i> {{ evento.vagas }} vagas</span>
           </div>
         </div>
         {% endfor %}

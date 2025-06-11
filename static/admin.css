@@ -236,6 +236,32 @@ textarea {
   font-weight: bold;
 }
 
+.item-info {
+  margin-top: 10px;
+}
+
+.item-info > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  align-items: baseline;
+}
+
+.item-description {
+  color: #444;
+  margin-top: 13px;
+  font-size: 0.99em;
+  background: #ffe3f1;
+  border-radius: 7px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.online-badge {
+  font-weight: bold;
+  color: #3076e2;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .admin-container {

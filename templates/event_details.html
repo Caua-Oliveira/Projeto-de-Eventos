@@ -5,80 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalhes do Evento</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='event_details.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
   {% include 'nav_bar.html' %}
 
-  <div class="detalhes-container">
-    <h2>{{ evento.titulo }}</h2>
-
-    <div class="carrossel">
-      <img
-        src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='pluralize.png') }}"
-        alt="Imagem do evento"
-        id="imagem-carrossel"
-      />
-    </div>
-
-    <div class="info-extra">
-      <span>Data: {{ evento.data_inicio.strftime('%d/%m/%Y') }} até {{ evento.data_fim.strftime('%d/%m/%Y') }}</span>
-      <span>Local: {{ evento.local or '—' }}</span>
-      <span>Vagas: {{ evento.vagas }}</span>
-    </div>
-
-    <div class="descricao">
-      <strong>Descrição:</strong>
-      <p>{{ evento.descricao or '—' }}</p>
-    </div>
-
-    {% if evento.descricao_estendida %}
-    <div class="descricao">
-      <strong>Descrição Estendida:</strong>
-      <p>{{ evento.descricao_estendida }}</p>
-    </div>
-    {% endif %}
-
-    <section class="atividades">
-      <h2>Atividades</h2>
-      {% if atividades %}
-        <ul>
-          {% for at in atividades %}
-          <li class="atividade">
-            <h3>{{ at.titulo }}</h3>
-            <p>{{ at.descricao or '—' }}</p>
-            <p>
-              <span>Quando: {{ at.data_hora.strftime('%d/%m/%Y às %H:%M') }}</span><br>
-              <span>Duração: {{ at.duracao_minutos }} min</span><br>
-              <span>Tipo: {{ at.tipo.nome }}</span><br>
-            </p>
-          </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>Não há atividades cadastradas para este evento.</p>
-      {% endif %}
-    </section>
-
-    {% if user %}
-      {% if inscrito %}
-        <button class="btn-inscricao" disabled>Inscrito</button>
-      {% else %}
-      {% if user.tipo.nome not in ['organizador', 'admin'] %}
-          <form method="post" action="{{ url_for('rotas.register_in_event', event_id=evento.id_evento) }}">
-            <button type="submit" class="btn-inscricao">Inscrever-se!</button>
-          </form>
-        {% else %}
-        <button class="btn-inscricao" disabled>Você não pode se inscrever neste evento</button>
-      {% endif %}
+  <div class="evento-detalhes-wrapper">
+    <div class="evento-detalhes-card">
+      <div class="evento-detalhes-img">
+        <img src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='pluralize.png') }}" alt="Imagem do evento" />
+      </div>
+      <div class="evento-detalhes-body">
+        <span class="evento-detalhes-badge">
+          {% if evento.online %}
+            Online
+          {% else %}
+            Presencial
+          {% endif %}
+        </span>
+        <h1 class="evento-detalhes-title">{{ evento.titulo }}</h1>
+        <div class="evento-detalhes-meta">
+          <div class="evento-detalhes-meta-item">
+            <i class="fas fa-calendar"></i>
+            <span>
+              {{ evento.data_inicio.strftime('%b %d, %Y') }} - {{ evento.data_fim.strftime('%b %d, %Y') }}
+            </span>
+          </div>
+          <div class="evento-detalhes-meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ evento.local or '—' }}</span>
+          </div>
+          <div class="evento-detalhes-meta-item">
+            <i class="fas fa-users"></i>
+            <span>{{ evento.vagas }} vagas</span>
+          </div>
+        </div>
+        <div class="evento-detalhes-desc">
+          <strong>Descrição:</strong>
+          <p>{{ evento.descricao or '—' }}</p>
+        </div>
+        {% if evento.descricao_estendida %}
+        <div class="evento-detalhes-desc">
+          <strong>Descrição Estendida:</strong>
+          <p>{{ evento.descricao_estendida }}</p>
+        </div>
         {% endif %}
-      {% else %}
-      <a href="{{ url_for('rotas.login') }}">
-        <button class="btn-inscricao">Inscrever-se!</button>
-      </a>
-    {% endif %}
+        <div class="evento-detalhes-atividades">
+          <h2>Atividades</h2>
+          {% if atividades %}
+            <ul>
+              {% for at in atividades %}
+                <li>
+                  <span class="atividade-titulo">{{ at.titulo }}</span>
+                  <span class="atividade-info">
+                    {{ at.data_hora.strftime('%d/%m/%Y %H:%M') }} •
+                    {{ at.duracao_minutos }} min •
+                    {{ at.tipo.nome }}
+                  </span>
+                  <div class="atividade-desc">{{ at.descricao or '—' }}</div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>Não há atividades cadastradas para este evento.</p>
+          {% endif %}
+        </div>
+        <div class="evento-detalhes-actions">
+          {% if user %}
+            {% if inscrito %}
+              <button class="btn-inscricao" disabled>Inscrito</button>
+            {% else %}
+              {% if user.tipo.nome not in ['organizador', 'admin'] %}
+                <form method="post" action="{{ url_for('rotas.register_in_event', event_id=evento.id_evento) }}">
+                  <button type="submit" class="btn-inscricao">Inscrever-se!</button>
+                </form>
+              {% else %}
+                <button class="btn-inscricao" disabled>Você não pode se inscrever neste evento</button>
+              {% endif %}
+            {% endif %}
+          {% else %}
+            <a href="{{ url_for('rotas.login') }}">
+              <button class="btn-inscricao">Inscrever-se!</button>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
   </div>
-
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="https://kit.fontawesome.com/1d7d9b3c9a.js" crossorigin="anonymous"></script>
 </body>
 </html>
