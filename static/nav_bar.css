@@ -1,48 +1,45 @@
+/* General styling for the navigation bar */
 nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;
-  background: linear-gradient(120deg, #d63384 0%, #6f42c1 100%);
-  box-shadow: 0 2px 8px rgba(100,0,80,0.08);
+  background-color: #6f42c1; /* Simplified from gradient to solid color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Simplified shadow */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  height: 56px;
+  height: 60px;
+  z-index: 1000;
 }
 
+/* Container to center content */
 .nav-container {
   max-width: 1200px;
   height: 100%;
-  margin: auto;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1.2rem;
-  box-sizing: border-box;
+  padding: 0 1rem;
 }
 
+/* Logo styling */
 .logo a {
-  color: #ffe3f1;
-  font-size: 1.7rem;
-  font-weight: 900;
-  letter-spacing: 1px;
+  color: #fff; /* Changed from light pink to white for better contrast */
+  font-size: 1.5rem;
+  font-weight: bold;
   text-decoration: none;
-  padding: 4px 14px;
-  border-radius: 14px;
-  background: rgba(255, 227, 241, 0.12);
-  transition: background 0.18s;
-  box-shadow: 0 2px 8px #d6338420;
+  transition: color 0.2s;
 }
 
 .logo a:hover {
-  background: #ffe3f1;
-  color: #d63384;
+  color: #ffe3f1; /* Lighter pink on hover */
 }
 
+/* Navigation links styling */
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 1.1rem;
+  gap: 1.5rem; /* Increased gap for better spacing */
   margin: 0;
   padding: 0;
 }
@@ -50,88 +47,69 @@ nav {
 .nav-links li a {
   color: #fff;
   text-decoration: none;
-  font-size: 1.07rem;
-  padding: 0.4rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: background 0.16s, color 0.16s, box-shadow 0.16s;
-  letter-spacing: 0.2px;
-  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  padding-bottom: 5px; /* Add padding to the bottom for the border effect */
+  border-bottom: 2px solid transparent; /* Prepare for hover effect */
+  transition: border-color 0.2s;
 }
 
 .nav-links li a:hover,
 .nav-links li a:focus {
-  background: #ffe3f1;
-  color: #d63384;
-  box-shadow: 0 2px 12px #d633842a;
+  border-bottom-color: #ffe3f1; /* Simple border on hover */
   outline: none;
 }
 
+/* Hamburger Menu Icon */
 .menu-icon {
-  display: none;
-  font-size: 2rem;
-  color: #ffe3f1;
+  display: none; /* Hidden on desktop */
+  font-size: 1.8rem;
+  color: #fff;
   cursor: pointer;
-  margin-left: 1.2rem;
   user-select: none;
 }
 
+/* Checkbox to toggle menu (hidden) */
 #menu-toggle {
   display: none;
 }
 
-/* Mobile Responsive */
-@media (max-width: 900px) {
-  .nav-container {
-    max-width: 100%;
-    padding: 0 0.4rem;
-  }
-  .logo a {
-    font-size: 1.3rem;
-    padding: 3px 8px;
-  }
-  .nav-links li a {
-    font-size: 1rem;
-    padding: 0.4rem 0.8rem;
-  }
-}
-
+/* Responsive styles for mobile */
 @media (max-width: 768px) {
   .nav-links {
+    display: none; /* Hide links by default */
     position: absolute;
-    top: 56px;
+    top: 60px; /* Position below the navbar */
     left: 0;
     width: 100%;
-    background: linear-gradient(120deg, #d63384 30%, #6f42c1 100%);
+    background-color: #d63384;
     flex-direction: column;
-    display: none;
-    padding: 12px 0 16px 0;
-    box-shadow: 0 2px 12px #6f42c122;
-    border-bottom-left-radius: 14px;
-    border-bottom-right-radius: 14px;
+    padding: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
-  #menu-toggle:checked + .menu-icon + .nav-links {
+  /* Show nav links when the checkbox is checked */
+  #menu-toggle:checked ~ .nav-links {
     display: flex;
   }
 
-  .menu-icon {
-    display: block;
-  }
-
   .nav-links li {
-    margin: 8px 0;
     text-align: center;
+    margin: 0.5rem 0;
   }
-}
-
-@media (max-width: 500px) {
-  .logo a {
-    font-size: 1.1rem;
-    padding: 2px 6px;
-  }
+  
   .nav-links li a {
-    font-size: 0.98rem;
-    padding: 0.38rem 0.6rem;
+    border-bottom: none; /* No border needed in mobile view */
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+  }
+
+  .nav-links li a:hover,
+  .nav-links li a:focus {
+    background-color: #6f42c1; /* Use the purple for selection */
+  }
+
+  .menu-icon {
+    display: block; /* Show hamburger icon */
   }
 }
