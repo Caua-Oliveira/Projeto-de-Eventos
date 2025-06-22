@@ -270,7 +270,7 @@ def admin_alterar_tipo_usuario(user_id):
     except Exception as e:
         flash(f'Erro ao atualizar tipo de usuário: {e}', 'danger')
 
-    return redirect(url_for('rotas.admin_usuarios'))
+    return redirect(url_for('rotas.admin_users'))
 
 @routes.route('/admin/deletar-usuario/<int:user_id>', methods=['POST'])
 @requires_admin
@@ -281,5 +281,5 @@ def admin_deletar_usuario(user_id):
     except Exception as e:
         flash(f'Erro ao deletar usuário: {e}', 'danger')
 
-    return redirect(url_for('rotas.admin_usuarios')
+    return redirect(url_for('rotas.admin_users')
 )

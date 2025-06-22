@@ -12,92 +12,101 @@
 
 <body>
   {% include 'nav_bar.html' %}
-  <div class="home-wrapper">
-    <div class="home-topo">
-      <h1>Seja Bem-Vindo ao Sistema de Eventos!!!</h1>
-      <a href="{{ url_for('rotas.events') }}" class="ver-events">Ver Eventos</a>
+  <section class="home-hero">
+    <div class="hero-content">
+      <h1>
+        Seja Bem-Vindo ao <span class="brand-highlight">PluraliZe</span>
+      </h1>
+      <p>
+        Descubra, participe e organize eventos incríveis. Tudo em um só lugar.
+      </p>
+      <a href="{{ url_for('rotas.events') }}" class="hero-btn">Ver Eventos</a>
     </div>
+  </section>
 
-    <section class="carrossel-destaque">
+  <section class="carrossel-destaque">
+    <div class="section-header">
       <h2>Eventos em Destaque</h2>
-      <div class="carousel-custom-controls position-relative">
-        <button class="carousel-btn carousel-btn-left" type="button" id="btnPrev" aria-label="Anterior">
-          <!-- Bootstrap chevron-left SVG -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-          </svg>
-        </button>
-        <div class="overflow-hidden w-100">
-          <div id="eventsTrack" class="events-track">
-            {% for evento in events %}
-              <div class="evento-col">
-                <div class="card evento-card-bootstrap m-2 d-flex flex-column align-items-center">
-                  <a href="{{ url_for('rotas.event_details', event_id=evento.id_evento) }}" style="text-decoration:none; color:inherit; width: 100%;">
-                    <div class="evento-imagem-wrapper">
-                      <img
-                        src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='pluralize.png') }}"
-                        class="evento-imagem-top"
-                        alt="Imagem do Evento"
-                      />
-                    </div>
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
-                      <h5 class="card-title mb-2">{{ evento.titulo }}</h5>
-                      <p style="font-size:0.95em; color:#6f42c1; margin-bottom: 0.5em;">
-                        {{ evento.data_inicio.strftime('%d/%m/%Y') if evento.data_inicio else '' }}
-                      </p>
-                      <p style="font-size:0.9em;">
-                        {{ evento.local if evento.local else '' }}
-                      </p>
-                    </div>
-                  </a>
-                </div>
-              </div>
-            {% else %}
-              <div class="evento-col">
-                <div class="card evento-card-bootstrap" style="opacity:0.5;">
-                  <div class="evento-imagem-wrapper">
-                    <img
-                      src="{{ url_for('static', filename='default_evento.jpg') }}"
-                      class="evento-imagem-top"
-                      alt="Imagem padrão de Evento"
-                    />
-                  </div>
-                  <div class="card-body text-center d-flex flex-column justify-content-center">
-                    Nenhum evento em destaque
-                  </div>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-        <button class="carousel-btn carousel-btn-right" type="button" id="btnNext" aria-label="Próximo">
-          <!-- Bootstrap chevron-right SVG -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 1 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-          </svg>
-        </button>
-      </div>
-    </section>
-
-    <div class="home-centro">
-      <div class="texto-explicativo">
-        <h2>Quem somos?</h2>
-        <textarea placeholder="Escreva aqui uma breve explicação..."></textarea>
-
-        <h2>O que fazemos?</h2>
-        <textarea placeholder="Escreva aqui uma breve explicação..."></textarea>
-      </div>
+      <hr>
     </div>
-  </div>
+    <div class="carousel-custom-controls position-relative">
+      <button class="carousel-btn carousel-btn-left" type="button" id="btnPrev" aria-label="Anterior">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+        </svg>
+      </button>
+      <div class="overflow-hidden w-100">
+        <div id="eventsTrack" class="events-track">
+          {% for evento in events %}
+          <div class="evento-col">
+            <div class="card evento-card-bootstrap m-2 d-flex flex-column align-items-center">
+              <a href="{{ url_for('rotas.event_details', event_id=evento.id_evento) }}" style="text-decoration:none; color:inherit; width: 100%;">
+                <div class="evento-imagem-wrapper">
+                  <img
+                    src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='pluralize.png') }}"
+                    class="evento-imagem-top"
+                    alt="Imagem do Evento"
+                  />
+                </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                  <h5 class="card-title mb-2">{{ evento.titulo }}</h5>
+                  <p class="card-date">
+                    {{ evento.data_inicio.strftime('%d/%m/%Y') if evento.data_inicio else '' }}
+                  </p>
+                  <p class="card-location">
+                    {{ evento.local if evento.local else '' }}
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+          {% else %}
+          <div class="evento-col">
+            <div class="card evento-card-bootstrap" style="opacity:0.5;">
+              <div class="evento-imagem-wrapper">
+                <img
+                  src="{{ url_for('static', filename='default_evento.jpg') }}"
+                  class="evento-imagem-top"
+                  alt="Imagem padrão de Evento"
+                />
+              </div>
+              <div class="card-body text-center d-flex flex-column justify-content-center">
+                Nenhum evento em destaque
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="carousel-btn carousel-btn-right" type="button" id="btnNext" aria-label="Próximo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 1 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <section class="sobre-pluralize">
+    <div class="sobre-content">
+      <h2>Quem somos?</h2>
+      <p>
+        PluraliZe é uma plataforma inclusiva focada em conectar pessoas através de experiências únicas e eventos inesquecíveis. Nosso objetivo é promover a diversidade, criatividade e colaboração por meio de eventos online e presenciais.
+      </p>
+      <h2>O que fazemos?</h2>
+      <p>
+        Oferecemos uma solução completa para organização, divulgação e participação em eventos dos mais variados tipos. Seja para aprender, compartilhar ou se divertir, aqui você encontra o evento certo para você!
+      </p>
+    </div>
+  </section>
 
   <footer class="home-rodape">
     <a href="#">Contate um Suporte.</a>
+    <span class="footer-brand">PluraliZe &copy; {{ 2025 }}</span>
   </footer>
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Responsividade: quantos cartões aparecem por vez
     function getCardsPerView() {
       if (window.innerWidth < 576) return 1;
       if (window.innerWidth < 992) return 2;

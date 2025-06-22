@@ -9,16 +9,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navegação Principal -->
-  {% include 'nav_bar.html' %}
+    {% include 'nav_bar.html' %}
 
     <div class="admin-container">
-        <!-- Cabeçalho Admin -->
         <div class="admin-header">
             <h1><i class="fas fa-cogs"></i> {% block header_title %}Painel Administrativo{% endblock %}</h1>
+            <p class="admin-header-sub">{% block header_subtitle %}{% endblock %}</p>
         </div>
 
-        <!-- Menu de Navegação Admin -->
         <div class="admin-menu">
             <div class="menu-grid">
                 <a href="{{ url_for('rotas.admin') }}" class="menu-btn {% if request.endpoint == 'rotas.admin' %}active{% endif %}">
@@ -40,7 +38,6 @@
             </div>
         </div>
 
-        <!-- Conteúdo da Página -->
         <div class="admin-content">
             {% block content %}{% endblock %}
         </div>

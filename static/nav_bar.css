@@ -1,83 +1,115 @@
+/* General styling for the navigation bar */
 nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;
-  background-color: #6f42c1;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: #6f42c1; /* Simplified from gradient to solid color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Simplified shadow */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  height: 56px; /* thinner bar */
+  height: 60px;
+  z-index: 1000;
 }
 
+/* Container to center content */
 .nav-container {
   max-width: 1200px;
   height: 100%;
-  margin: auto;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
-  align-items: center; /* vertical center */
+  align-items: center;
   padding: 0 1rem;
-  box-sizing: border-box;
 }
 
+/* Logo styling */
 .logo a {
-  color: white;
-  font-size: 1.6rem;
-  font-weight: 600;
+  color: #fff; /* Changed from light pink to white for better contrast */
+  font-size: 1.5rem;
+  font-weight: bold;
   text-decoration: none;
+  transition: color 0.2s;
 }
 
+.logo a:hover {
+  color: #ffe3f1; /* Lighter pink on hover */
+}
+
+/* Navigation links styling */
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 0.8rem;
+  gap: 1.5rem; /* Increased gap for better spacing */
   margin: 0;
   padding: 0;
 }
 
 .nav-links li a {
-  color: white;
-  text-decoration: none;
-  font-size: 0.95rem;
-  padding: 0.4rem 0.6rem;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.nav-links li a:hover {
-  background-color: rgba(255, 255, 255, 0.15);
   color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  padding-bottom: 5px; /* Add padding to the bottom for the border effect */
+  border-bottom: 2px solid transparent; /* Prepare for hover effect */
+  transition: border-color 0.2s;
 }
 
-/* Mobile adjustments */
+.nav-links li a:hover,
+.nav-links li a:focus {
+  border-bottom-color: #ffe3f1; /* Simple border on hover */
+  outline: none;
+}
+
+/* Hamburger Menu Icon */
 .menu-icon {
-  display: none;
-  font-size: 1.6rem;
-  color: white;
+  display: none; /* Hidden on desktop */
+  font-size: 1.8rem;
+  color: #fff;
   cursor: pointer;
+  user-select: none;
 }
 
+/* Checkbox to toggle menu (hidden) */
 #menu-toggle {
   display: none;
 }
 
+/* Responsive styles for mobile */
 @media (max-width: 768px) {
   .nav-links {
+    display: none; /* Hide links by default */
     position: absolute;
-    top: 56px; /* same as nav height */
+    top: 60px; /* Position below the navbar */
     left: 0;
     width: 100%;
-    background-color: #6f42c1;
+    background-color: #d63384;
     flex-direction: column;
-    display: none;
+    padding: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
-  #menu-toggle:checked + .menu-icon + .nav-links {
+  /* Show nav links when the checkbox is checked */
+  #menu-toggle:checked ~ .nav-links {
     display: flex;
   }
 
+  .nav-links li {
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+  
+  .nav-links li a {
+    border-bottom: none; /* No border needed in mobile view */
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+  }
+
+  .nav-links li a:hover,
+  .nav-links li a:focus {
+    background-color: #6f42c1; /* Use the purple for selection */
+  }
+
   .menu-icon {
-    display: block;
+    display: block; /* Show hamburger icon */
   }
 }

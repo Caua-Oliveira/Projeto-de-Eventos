@@ -3,44 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Listagem de events</title>
+  <title>Eventos Disponíveis</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='events.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
   {% include 'nav_bar.html' %}
 
-<div class="filter-section">
-    <form method="get" class="filter-form">
-        <label class="filter-checkbox">
-            <input type="checkbox" name="online" value="1" {% if show_online %}checked{% endif %}>
-            <span>Online</span>
-        </label>
-        <label class="filter-checkbox">
-            <input type="checkbox" name="irl" value="1" {% if show_irl %}checked{% endif %}>
-            <span>Presencial</span>
-        </label>
-        <button type="submit" class="filter-btn">Filtrar</button>
-    </form>
-</div>
-  <div class="event-list-container">
-    <h2>Eventos disponíveis:</h2>
-
-    {% for ev in events %}
-    <div class="evento">
-      <a href="{{ url_for('rotas.event_details', event_id=ev.id_evento) }}">{{ ev.titulo }}</a>
-      <div class="descricao">{{ ev.descricao or '—' }}</div>
-      <div class="info-extra">
-        <span>Data: {{ ev.data_inicio.strftime('%d/%m/%Y') }}</span>
-        <span>Local: {{ ev.local or '—' }}</span>
+  <div class="events-bg">
+    <div class="events-container">
+      <div class="events-header">
+        <h1><span class="brand-highlight">Eventos</span> Disponíveis</h1>
+        <form method="get" class="filter-form">
+          <div class="filter-checkbox-group">
+            <label class="filter-checkbox">
+              <input type="checkbox" name="online" value="1" {% if show_online %}checked{% endif %}>
+              <span>Online</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" name="irl" value="1" {% if show_irl %}checked{% endif %}>
+              <span>Presencial</span>
+            </label>
+          </div>
+          <button type="submit" class="filter-btn">Filtrar</button>
+        </form>
+      </div>
+      <div class="events-list">
+        {% for ev in events %}
+        <a class="evento-card" href="{{ url_for('rotas.event_details', event_id=ev.id_evento) }}">
+          <div class="evento-img">
+            <img src="{{ ev.imagem_url if ev.imagem_url else url_for('static', filename='pluralize.png') }}"
+                 alt="Imagem do evento">
+          </div>
+          <div class="evento-body">
+            <span class="evento-badge">
+              {% if ev.online %}
+                Online
+              {% else %}
+                Presencial
+              {% endif %}
+            </span>
+            <div class="evento-title">{{ ev.titulo }}</div>
+            <div class="evento-dates">
+              {{ ev.data_inicio.strftime('%b %d, %Y') }} - {{ ev.data_fim.strftime('%b %d, %Y') }}
+            </div>
+            <div class="evento-location">
+              {{ ev.local or '—' }}
+            </div>
+            <div class="evento-desc">
+              {{ ev.descricao[:80] if ev.descricao else '—' }}{% if ev.descricao and ev.descricao|length > 80 %}...{% endif %}
+            </div>
+          </div>
+        </a>
+        {% else %}
+        <div class="evento-card vazio">
+          <div class="evento-body">
+            <div class="evento-title">Nenhum evento disponível</div>
+            <div class="evento-location">Volte mais tarde para ver novos eventos!</div>
+          </div>
+        </div>
+        {% endfor %}
       </div>
     </div>
-    {% else %}
-    <p>Não há eventos disponíveis.</p>
-    {% endfor %}
-
   </div>
-
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="https://kit.fontawesome.com/1d7d9b3c9a.js" crossorigin="anonymous"></script>
 </body>
 </html>

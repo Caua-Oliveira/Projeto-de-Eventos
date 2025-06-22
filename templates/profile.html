@@ -3,74 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>profile de Usuário</title>
+  <title>Perfil do Usuário</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
   {% include 'nav_bar.html' %}
 <br>
   <div class="profile-wrapper">
-    <div class="profile-container">
-      <h2>Perfil do Usuário</h2>
-
-      <div class="info-usuario">
-        <p><strong>Nome Completo:</strong> {{ user.nome }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
+    <div class="profile-card">
+      <div class="profile-img-section">
+        <div class="profile-img-box">
+          <img src="{{ user.foto_url if user.foto_url else url_for('static', filename='default_user.png') }}" alt="Foto de perfil" class="profile-img">
+        </div>
+        <div class="profile-badge">
+          <span class="profile-type">{{ user.tipo.nome|title }}</span>
+        </div>
       </div>
-
-      <div class="events-inscritos">
-        <h3>Eventos Inscritos:</h3>
+      <div class="profile-main-info">
+        <div class="profile-main-title">{{ user.nome }}</div>
+        <div class="profile-email">{{ user.email }}</div>
+        <div class="profile-extra-info">
+          <span><i class="fas fa-users"></i> Participações: {{ inscricoes|length if inscricoes is defined else 0 }}</span>
+        </div>
+        <a href="#" class="btn-profile-edit">Editar Perfil</a>
+      </div>
+    </div>
+    <div class="profile-events-section">
+      <div class="profile-events-block">
+        <h3 class="profile-events-title">Eventos Inscritos</h3>
         {% if inscricoes %}
-        <ul>
+        <ul class="profile-events-list">
           {% for ins in inscricoes %}
             <li>
               <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
-                {{ ins.evento.titulo }}
+                <span class="profile-event-title">{{ ins.evento.titulo }}</span>
+                <span class="profile-event-date">
+                  {{ ins.evento.data_inicio.strftime('%d/%m/%Y') }} - {{ ins.evento.data_fim.strftime('%d/%m/%Y') }}
+                </span>
               </a>
             </li>
           {% endfor %}
         </ul>
         {% else %}
-          <p>Você não está inscrito em nenhum evento.</p>
+          <div class="profile-events-empty">Você não está inscrito em nenhum evento.</div>
         {% endif %}
-      </div>
-
-      <div class="events-participados">
-        <h3>Eventos Participados:</h3>
-        {% if participados %}
-        <ul>
-          {% for ins in participados %}
-            <li>
-              <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
-                {{ ins.evento.titulo }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-        {% else %}
-          <p>Você não participou de nenhum evento.</p>
-        {% endif %}
-      </div>
-
-      <button class="btn-editar">Editar profile</button>
-    </div>
-
-    <div class="profile-lateral">
-      <label for="foto-profile" class="upload-box">
-        <input type="file" id="foto-profile" />
-        <p>Inserir foto de perfil</p>
-      </label>
-
-      <div class="numero-participacoes">
-        <label for="contador-events">Número de participações:</label>
-        <input type="number" id="contador-events"
-               value="{{ participados|length if participados is defined else 0 }}"
-               readonly />
       </div>
     </div>
   </div>
-
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="https://kit.fontawesome.com/1d7d9b3c9a.js" crossorigin="anonymous"></script>
 </body>
 </html>

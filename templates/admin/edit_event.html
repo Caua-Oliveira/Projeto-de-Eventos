@@ -8,43 +8,38 @@
     <h2><i class="fas fa-edit"></i> Editar Evento</h2>
 
     <form method="POST" enctype="multipart/form-data" class="admin-form">
-        <div class="form-grid">
-                        <div class="form-group">
-                <label for="online"><i class="fas fa-wifi"></i> Evento Online</label>
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="online" name="online" value="1" {% if evento.online %}checked{% endif %}>
-                    <label for="online" class="checkbox-label"><<</label>
-                </div>
+        <div class="form-group">
+            <label for="online"><i class="fas fa-wifi"></i> Evento Online</label>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="online" name="online" value="1" {% if evento.online %}checked{% endif %}>
+                <label for="online" class="checkbox-label">Online</label>
             </div>
+        </div>
+        <div class="form-grid">
             <div class="form-group">
                 <label for="titulo"><i class="fas fa-heading"></i> Título *</label>
                 <input type="text" id="titulo" name="titulo" value="{{ evento.titulo }}" required>
             </div>
-
             <div class="form-group">
                 <label for="local"><i class="fas fa-map-marker-alt"></i> Local</label>
                 <input type="text" id="local" name="local" value="{{ evento.local or '' }}">
             </div>
-
             <div class="form-group">
                 <label for="data_inicio"><i class="fas fa-calendar-day"></i> Data Início *</label>
                 <input type="date" id="data_inicio" name="data_inicio" value="{{ evento.data_inicio.strftime('%Y-%m-%d') }}" required>
             </div>
-
             <div class="form-group">
                 <label for="data_fim"><i class="fas fa-calendar-day"></i> Data Fim *</label>
                 <input type="date" id="data_fim" name="data_fim" value="{{ evento.data_fim.strftime('%Y-%m-%d') }}" required>
             </div>
-
             <div class="form-group">
                 <label for="vagas"><i class="fas fa-users"></i> Vagas *</label>
                 <input type="number" id="vagas" name="vagas" min="1" value="{{ evento.vagas }}" required>
             </div>
-
-        <div class="form-group full-width">
-            <label for="descricao"><i class="fas fa-align-left"></i> Descrição</label>
-            <textarea id="descricao" name="descricao" rows="4">{{ evento.descricao or '' }}</textarea>
-        </div>
+            <div class="form-group full-width">
+                <label for="descricao"><i class="fas fa-align-left"></i> Descrição</label>
+                <textarea id="descricao" name="descricao" rows="4">{{ evento.descricao or '' }}</textarea>
+            </div>
             <div class="form-group">
                 <label for="imagem_evento"><i class="fas fa-image"></i> Nova Imagem do Evento</label>
                 <input type="file" id="imagem_evento" name="imagem_evento" accept="image/*">
@@ -54,11 +49,6 @@
             </div>
         </div>
 
-
-
-        <br>
-        <br>
-        <!-- Atividades -->
         <div class="activities-section">
             <h3><i class="fas fa-tasks"></i> Atividades do Evento</h3>
             <div id="atividades-container">
@@ -104,7 +94,6 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <!-- Se não há atividades, criar uma atividade vazia -->
                     <div class="atividade-form">
                         <div class="atividade-header">
                             <h4>Atividade 1</h4>
@@ -146,7 +135,6 @@
             </button>
         </div>
 
-        <!-- Informações do Evento -->
         <div class="event-info-section">
             <h3><i class="fas fa-info-circle"></i> Informações do Evento</h3>
             <div class="info-grid">
@@ -186,11 +174,9 @@ function addActivity() {
     const container = document.getElementById('atividades-container');
     const template = container.querySelector('.atividade-form').cloneNode(true);
 
-    // Limpar campos do template
     template.querySelectorAll('input, textarea').forEach(el => el.value = '');
     template.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
 
-    // Atualizar número da atividade
     const activityNumber = container.children.length + 1;
     template.querySelector('h4').textContent = `Atividade ${activityNumber}`;
 
@@ -202,11 +188,9 @@ function removeActivity(button) {
     const activities = container.querySelectorAll('.atividade-form');
 
     if (activities.length > 1) {
-        // Confirmar remoção
         if (confirm('Tem certeza que deseja remover esta atividade?')) {
             button.closest('.atividade-form').remove();
 
-            // Renumerar atividades
             container.querySelectorAll('.atividade-form').forEach((activity, index) => {
                 activity.querySelector('h4').textContent = `Atividade ${index + 1}`;
             });
@@ -216,7 +200,6 @@ function removeActivity(button) {
     }
 }
 
-// Validação de datas
 document.addEventListener('DOMContentLoaded', function() {
     const dataInicio = document.getElementById('data_inicio');
     const dataFim = document.getElementById('data_fim');
