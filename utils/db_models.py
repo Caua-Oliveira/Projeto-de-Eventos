@@ -31,6 +31,7 @@ class Evento(db.Model):
     imagem_url = db.Column(db.String(500), nullable=True)
     online = db.Column(db.Boolean, nullable=False, default=False)
     finished = db.Column(db.Boolean, nullable=True, default=False)
+    convidados = db.Column(db.JSON, nullable=True)
 
 class TipoAtividade(db.Model):
     __tablename__ = 'tipos_atividade'
@@ -57,3 +58,10 @@ class InscricaoEvento(db.Model):
     data_inscricao = db.Column(db.DateTime, default=datetime.utcnow)
     usuario = db.relationship('Usuario')
     evento = db.relationship('Evento')
+
+class Convidados(db.Model):
+    __tablename__ = 'convidados'
+    id_convidado = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    bio = db.Column(db.String(300), nullable=True)
+    foto = db.Column(db.String(500), nullable=True)
