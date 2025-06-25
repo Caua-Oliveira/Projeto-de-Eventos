@@ -180,3 +180,39 @@ body {
     padding: 18px 7px 14px 7px;
   }
 }
+.profile-event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cancel-inscricao-form {
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+.btn-cancel-inscricao {
+  background: transparent;
+  border: 1px solid #d63384;
+  color: #d63384;
+  font-size: .9em;
+  border-radius: 5px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  margin-left: 8px;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .14s, color .14s;
+}
+.btn-cancel-inscricao:hover {
+  background: #d63384;
+  color: #fff;
+}
+.btn-cancel-inscricao i {
+  pointer-events: none;
+}

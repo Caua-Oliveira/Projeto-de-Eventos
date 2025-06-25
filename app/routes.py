@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from utils.utils import upload_image_to_imgbb
 from app.helpers import logged_user, requires_login, requires_admin
 from app.db_operations import *
-from utils.db_models import TipoAtividade
+from utils.db_models import TipoAtividade, Evento
 
 routes = Blueprint('rotas', __name__)
 
@@ -54,15 +54,17 @@ def events():
     show_online = request.args.get('online') == '1' or not has_param
     show_irl = request.args.get('irl') == '1' or not has_param
 
+    base_query = Evento.query.filter_by(finished=False)
 
     if show_online and show_irl:
-        events = Evento.query.all()
+        events = base_query.all()
     elif show_online:
-        events = Evento.query.filter_by(online=True).all()
+        events = base_query.filter_by(online=True).all()
     elif show_irl:
-        events = Evento.query.filter_by(online=False).all()
+        events = base_query.filter_by(online=False).all()
     else:
         events = []
+
     return render_template('events.html', events=events, user=logged_user(), show_online=show_online, show_irl=show_irl)
 
 @routes.route('/events/<int:event_id>')
@@ -93,11 +95,22 @@ def register_in_event(event_id):
         flash(error or 'Erro ao se inscrever no evento.', 'danger')
     return redirect(url_for('rotas.event_details', event_id=event_id))
 
+@routes.route('/profile/cancel-inscricao/<int:event_id>', methods=['POST'])
+@requires_login
+def cancel_inscricao_route(event_id):
+    user = logged_user()
+    success, error = cancel_inscricao(user.id_usuario, event_id)
+    if success:
+        flash('Inscrição cancelada com sucesso!', 'success')
+    else:
+        flash(error or 'Não foi possível cancelar a inscrição.', 'danger')
+    return redirect(url_for('rotas.profile'))
+
+
 # === ROTAS ADMINISTRATIVAS ===
 @routes.route('/admin')
 @requires_admin
 def admin():
-    # Dashboard administrativo
     stats = {
         'total_eventos': count_eventos(),
         'total_usuarios': 0,
@@ -139,7 +152,6 @@ def admin_create_event():
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
 
     if request.method == 'POST':
-        # Upload da imagem
         imagem = request.files.get('imagem_evento')
         imagem_url = None
         if imagem:
@@ -147,7 +159,6 @@ def admin_create_event():
             if not imagem_url:
                 flash('Erro ao fazer upload da imagem.', 'danger')
 
-        # Dados do evento
         payload = {
             "titulo": request.form['titulo'],
             "descricao": request.form.get('descricao'),
@@ -160,7 +171,6 @@ def admin_create_event():
             "atividades": []
         }
 
-        # Coletar atividades
         titulos = request.form.getlist('titulo_atividade')
         descricoes = request.form.getlist('descricao_atividade')
         datash = request.form.getlist('data_hora_atividade')
@@ -178,7 +188,6 @@ def admin_create_event():
                 "id_tipo_atividade": int(tipos_ids[i])
             })
 
-        # Criar evento via DB operations
         try:
             create_event(payload)
             flash('Evento criado com sucesso!', 'success')
@@ -198,7 +207,6 @@ def admin_edit_event(event_id):
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
 
     if request.method == 'POST':
-        # Dados atualizados do evento
         payload = {
             "titulo": request.form['titulo'],
             "descricao": request.form.get('descricao'),
@@ -207,17 +215,16 @@ def admin_edit_event(event_id):
             "data_fim": request.form['data_fim'],
             "vagas": int(request.form['vagas']),
             "online": 'online' in request.form,
+            "finished": 'finished' in request.form,
             "atividades": []
         }
 
-        # Upload de nova imagem (se fornecida)
         imagem = request.files.get('imagem_evento')
         if imagem:
             imagem_url = upload_image_to_imgbb(imagem)
             if imagem_url:
                 payload["imagem_url"] = imagem_url
 
-        # Coletar atividades
         titulos = request.form.getlist('titulo_atividade')
         descricoes = request.form.getlist('descricao_atividade')
         datash = request.form.getlist('data_hora_atividade')
@@ -234,8 +241,6 @@ def admin_edit_event(event_id):
                 "duracao_minutos": int(duracoes[i]),
                 "id_tipo_atividade": int(tipos_ids[i])
             })
-
-        # Atualizar evento via DB operations
         try:
             update_event(event_id, payload)
             flash('Evento atualizado com sucesso!', 'success')
@@ -269,7 +274,6 @@ def admin_alterar_tipo_usuario(user_id):
         flash('Tipo de usuário atualizado com sucesso!', 'success')
     except Exception as e:
         flash(f'Erro ao atualizar tipo de usuário: {e}', 'danger')
-
     return redirect(url_for('rotas.admin_users'))
 
 @routes.route('/admin/deletar-usuario/<int:user_id>', methods=['POST'])
@@ -280,6 +284,4 @@ def admin_deletar_usuario(user_id):
         flash('Usuário deletado com sucesso!', 'success')
     except Exception as e:
         flash(f'Erro ao deletar usuário: {e}', 'danger')
-
-    return redirect(url_for('rotas.admin_users')
-)
+    return redirect(url_for('rotas.admin_users'))

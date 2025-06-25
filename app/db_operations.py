@@ -84,6 +84,7 @@ def update_event(event_id, data):
     ev.data_fim = datetime.strptime(data['data_fim'], '%Y-%m-%d').date()
     ev.vagas = int(data['vagas'])
     ev.online = data.get('online', False)
+    ev.finished = data.get('finished', False)
     if 'imagem_url' in data:
         ev.imagem_url = data['imagem_url']
     # Remove old activities and add new ones
@@ -131,6 +132,8 @@ def register_user_in_event(user_id, event_id):
     if InscricaoEvento.query.filter_by(id_usuario=user_id, id_evento=event_id).first():
         return False, "Usuário já inscrito neste evento."
     inscricao = InscricaoEvento(id_usuario=user_id, id_evento=event_id)
+    evento = Evento.query.get(event_id)
+    evento.vagas -= 1
     db.session.add(inscricao)
     db.session.commit()
     return True, None
@@ -140,3 +143,12 @@ def get_inscricao(user_id, event_id):
 
 def get_inscricoes_by_user(user_id):
     return InscricaoEvento.query.filter_by(id_usuario=user_id).all()
+def cancel_inscricao(user_id, event_id):
+    inscricao = InscricaoEvento.query.filter_by(id_usuario=user_id, id_evento=event_id).first()
+    if not inscricao:
+        return False, "Inscrição não encontrada."
+    evento = Evento.query.get(event_id)
+    evento.vagas += 1
+    db.session.delete(inscricao)
+    db.session.commit()
+    return True, None
