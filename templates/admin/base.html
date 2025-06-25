@@ -27,6 +27,10 @@
                     <i class="fas fa-plus-circle"></i>
                     <span>Criar Evento</span>
                 </a>
+                 <a href="{{ url_for('rotas.admin_create_convidado') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_create_convidado' %}active{% endif %}">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Criar Convidado</span>
+                </a>
                 <a href="{{ url_for('rotas.admin_events') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_events' %}active{% endif %}">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Gerenciar Eventos</span>
@@ -34,6 +38,10 @@
                 <a href="{{ url_for('rotas.admin_users') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_users' %}active{% endif %}">
                     <i class="fas fa-users"></i>
                     <span>Gerenciar Usuários</span>
+                </a>
+                <a href="{{ url_for('rotas.admin_convidados') }}" class="menu-btn {% if request.endpoint == 'rotas.admin_convidados' %}active{% endif %}">
+                    <i class="fas fa-users-cog"></i>
+                    <span>Gerenciar Convidados</span>
                 </a>
             </div>
         </div>

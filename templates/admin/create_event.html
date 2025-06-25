@@ -45,6 +45,19 @@
             </div>
         </div>
 
+        <div class="guests-section">
+            <h3><i class="fas fa-user-friends"></i> Convidados do Evento</h3>
+            <div class="form-group full-width">
+                <label for="convidados">Selecione os convidados</label>
+                <select name="convidados" id="convidados" multiple class="form-control">
+                    {% for convidado in convidados %}
+                        <option value="{{ convidado.id_convidado }}">{{ convidado.nome }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-text">Segure Ctrl (ou Cmd em Mac) para selecionar múltiplos convidados.</small>
+            </div>
+        </div>
+
         <div class="activities-section">
             <h3><i class="fas fa-tasks"></i> Atividades do Evento</h3>
             <div id="atividades-container">
@@ -103,10 +116,8 @@ function addActivity() {
     const container = document.getElementById('atividades-container');
     const template = container.querySelector('.atividade-form').cloneNode(true);
 
-    // Limpar campos do template
     template.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
 
-    // Atualizar número da atividade
     const activityNumber = container.children.length + 1;
     template.querySelector('h4').textContent = `Atividade ${activityNumber}`;
 
@@ -120,7 +131,6 @@ function removeActivity(button) {
     if (activities.length > 1) {
         button.closest('.atividade-form').remove();
 
-        // Renumerar atividades
         container.querySelectorAll('.atividade-form').forEach((activity, index) => {
             activity.querySelector('h4').textContent = `Atividade ${index + 1}`;
         });

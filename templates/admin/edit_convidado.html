@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Editar Convidado{% endblock %}
+{% block header_subtitle %}Modifique as informações do convidado "{{ convidado.nome }}".{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <h2><i class="fas fa-edit"></i> Editar Convidado</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="admin-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="nome"><i class="fas fa-user"></i> Nome *</label>
+                <input type="text" id="nome" name="nome" value="{{ convidado.nome }}" required>
+            </div>
+            <div class="form-group full-width">
+                <label for="bio"><i class="fas fa-align-left"></i> Bio</label>
+                <textarea id="bio" name="bio" rows="4">{{ convidado.bio or '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="foto"><i class="fas fa-image"></i> Nova Foto do Convidado</label>
+                <input type="file" id="foto" name="foto" accept="image/*">
+                {% if convidado.foto %}
+                <small class="form-text">Foto atual: <a href="{{ convidado.foto }}" target="_blank">Ver imagem</a></small>
+                <img src="{{ convidado.foto }}" alt="Foto do convidado" class="current-image">
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+            <a href="{{ url_for('rotas.admin_convidados') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar para Lista
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

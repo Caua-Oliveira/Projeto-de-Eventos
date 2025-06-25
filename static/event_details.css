@@ -179,6 +179,53 @@ body {
   color: #ffe3f1;
 }
 
+/* --- NEW GUEST STYLES --- */
+.evento-detalhes-convidados {
+  background: #f8f9fa;
+  border-radius: 9px;
+  padding: 12px 10px 8px 10px;
+  margin: 12px 0 0 0;
+}
+.evento-detalhes-convidados h2 {
+  font-size: 1.05em;
+  margin: 0 0 10px 0;
+  color: #6f42c1;
+  font-weight: 700;
+}
+.convidados-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.convidado-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.convidado-foto img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffe3f1;
+}
+.convidado-info {
+  flex: 1;
+}
+.convidado-nome {
+  margin: 0;
+  font-size: 1em;
+  font-weight: bold;
+  color: #d63384;
+}
+.convidado-bio {
+  margin: 2px 0 0 0;
+  font-size: 0.9em;
+  color: #555;
+  line-height: 1.4;
+}
+/* --- END GUEST STYLES --- */
+
 @media (max-width: 650px) {
   .evento-detalhes-wrapper {
     padding: 60px 0 16px 0;

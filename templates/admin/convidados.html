@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Gerenciar Convidados{% endblock %}
+{% block header_subtitle %}Edite e exclua convidados existentes.{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <div class="section-header">
+        <h2><i class="fas fa-users"></i> Gerenciar Convidados</h2>
+        <a href="{{ url_for('rotas.admin_create_convidado') }}" class="btn-primary">
+            <i class="fas fa-plus"></i> Novo Convidado
+        </a>
+    </div>
+
+    <div class="items-list">
+        {% if convidados %}
+            {% for convidado in convidados %}
+            <div class="item-card">
+                <div class="item-header">
+                    <h4 class="item-title">{{ convidado.nome }}</h4>
+                    <div class="item-actions">
+                        <a href="{{ url_for('rotas.admin_edit_convidado', convidado_id=convidado.id_convidado) }}" class="btn-edit">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <form method="POST" action="{{ url_for('rotas.admin_delete_convidado', convidado_id=convidado.id_convidado) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja deletar este convidado?')">
+                            <button type="submit" class="btn-delete">
+                                <i class="fas fa-trash"></i> Deletar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="item-info">
+                    {% if convidado.bio %}
+                    <div class="item-description" style="margin-top:13px;">
+                        {{ convidado.bio[:120] }}{% if convidado.bio|length > 120 %}...{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Nenhum convidado encontrado.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -41,6 +41,14 @@
                         <span><i class="fas fa-building"></i> <span class="online-badge">Presencial</span></span>
                         {% endif %}
                     </div>
+                    {% if evento.convidados_details %}
+                    <div class="item-guests" style="margin-top: 10px;">
+                        <strong><i class="fas fa-user-friends"></i> Convidados:</strong>
+                        {% for convidado in evento.convidados_details %}
+                            <span class="badge">{{ convidado.nome }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                     {% if evento.descricao %}
                     <div class="item-description" style="margin-top:13px;">
                         {{ evento.descricao[:120] }}{% if evento.descricao|length > 120 %}...{% endif %}

@@ -56,101 +56,88 @@
             </div>
         </div>
 
+        <div class="guests-section">
+            <h3><i class="fas fa-user-friends"></i> Convidados do Evento</h3>
+            <div class="form-group full-width">
+                <label for="convidados">Selecione os convidados</label>
+                <select name="convidados" id="convidados" multiple class="form-control">
+                    {% for convidado in all_convidados %}
+                        <option value="{{ convidado.id_convidado }}" {% if evento.convidados and convidado.id_convidado in evento.convidados %}selected{% endif %}>
+                            {{ convidado.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="form-text">Segure Ctrl (ou Cmd em Mac) para selecionar múltiplos convidados.</small>
+            </div>
+        </div>
+
         <div class="activities-section">
             <h3><i class="fas fa-tasks"></i> Atividades do Evento</h3>
             <div id="atividades-container">
-                {% if atividades %}
-                    {% for atividade in atividades %}
-                    <div class="atividade-form">
-                        <div class="atividade-header">
-                            <h4>Atividade {{ loop.index }}</h4>
-                            <button type="button" class="remove-activity" onclick="removeActivity(this)">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                {% for atividade in atividades %}
+                <div class="atividade-form">
+                    <div class="atividade-header">
+                        <h4>Atividade {{ loop.index }}</h4>
+                        <button type="button" class="remove-activity" onclick="removeActivity(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Título da Atividade *</label>
+                            <input type="text" name="titulo_atividade" value="{{ atividade.titulo }}" required>
                         </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Título da Atividade *</label>
-                                <input type="text" name="titulo_atividade" value="{{ atividade.titulo }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo</label>
-                                <select name="tipo_atividade">
-                                    {% for tipo in tipos %}
-                                    <option value="{{ tipo.id_tipo_atividade }}" {% if atividade.id_tipo_atividade == tipo.id_tipo_atividade %}selected{% endif %}>
-                                        {{ tipo.nome }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Data e Hora *</label>
-                                <input type="datetime-local" name="data_hora_atividade"
-                                       value="{{ atividade.data_hora.strftime('%Y-%m-%dT%H:%M') if atividade.data_hora else '' }}"
-                                       required>
-                            </div>
-                            <div class="form-group">
-                                <label>Duração (minutos) *</label>
-                                <input type="number" name="duracao_atividade" min="1" value="{{ atividade.duracao_minutos }}" required>
-                            </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo_atividade">
+                                {% for tipo in tipos %}
+                                <option value="{{ tipo.id_tipo_atividade }}" {% if atividade.id_tipo_atividade == tipo.id_tipo_atividade %}selected{% endif %}>
+                                    {{ tipo.nome }}
+                                </option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="form-group full-width">
-                            <label>Descrição da Atividade</label>
-                            <textarea name="descricao_atividade" rows="2">{{ atividade.descricao or '' }}</textarea>
+                        <div class="form-group">
+                            <label>Data e Hora *</label>
+                            <input type="datetime-local" name="data_hora_atividade"
+                                   value="{{ atividade.data_hora.strftime('%Y-%m-%dT%H:%M') if atividade.data_hora else '' }}"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label>Duração (minutos) *</label>
+                            <input type="number" name="duracao_atividade" min="1" value="{{ atividade.duracao_minutos }}" required>
                         </div>
                     </div>
-                    {% endfor %}
+                    <div class="form-group full-width">
+                        <label>Descrição da Atividade</label>
+                        <textarea name="descricao_atividade" rows="2">{{ atividade.descricao or '' }}</textarea>
+                    </div>
+                </div>
                 {% else %}
-                    <div class="atividade-form">
-                        <div class="atividade-header">
-                            <h4>Atividade 1</h4>
-                            <button type="button" class="remove-activity" onclick="removeActivity(this)">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                <div class="atividade-form">
+                    <div class="atividade-header"><h4>Atividade 1</h4><button type="button" class="remove-activity" onclick="removeActivity(this)"><i class="fas fa-trash"></i></button></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Título da Atividade *</label><input type="text" name="titulo_atividade" required></div>
+                        <div class="form-group"><label>Tipo</label>
+                            <select name="tipo_atividade">
+                                {% for tipo in tipos %}<option value="{{ tipo.id_tipo_atividade }}">{{ tipo.nome }}</option>{% endfor %}
+                            </select>
                         </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Título da Atividade *</label>
-                                <input type="text" name="titulo_atividade" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo</label>
-                                <select name="tipo_atividade">
-                                    {% for tipo in tipos %}
-                                    <option value="{{ tipo.id_tipo_atividade }}">{{ tipo.nome }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Data e Hora *</label>
-                                <input type="datetime-local" name="data_hora_atividade" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Duração (minutos) *</label>
-                                <input type="number" name="duracao_atividade" min="1" required>
-                            </div>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Descrição da Atividade</label>
-                            <textarea name="descricao_atividade" rows="2"></textarea>
-                        </div>
+                        <div class="form-group"><label>Data e Hora *</label><input type="datetime-local" name="data_hora_atividade" required></div>
+                        <div class="form-group"><label>Duração (minutos) *</label><input type="number" name="duracao_atividade" min="1" required></div>
                     </div>
-                {% endif %}
+                    <div class="form-group full-width"><label>Descrição da Atividade</label><textarea name="descricao_atividade" rows="2"></textarea></div>
+                </div>
+                {% endfor %}
             </div>
-            <button type="button" class="btn-add-activity" onclick="addActivity()">
-                <i class="fas fa-plus"></i> Adicionar Atividade
-            </button>
+            <button type="button" class="btn-add-activity" onclick="addActivity()"><i class="fas fa-plus"></i> Adicionar Atividade</button>
         </div>
 
         <div class="event-info-section">
             <h3><i class="fas fa-info-circle"></i> Informações do Evento</h3>
             <div class="info-grid">
-                <div class="info-item">
-                    <strong>Criado por:</strong> {{ evento.organizador.nome }}
-                </div>
-                <div class="info-item">
-                    <strong>ID do Evento:</strong> {{ evento.id_evento }}
-                </div>
+                <div class="info-item"><strong>Criado por:</strong> {{ evento.organizador.nome }}</div>
+                <div class="info-item"><strong>ID do Evento:</strong> {{ evento.id_evento }}</div>
                 {% if evento.imagem_url %}
                 <div class="info-item full-width">
                     <strong>Imagem Atual:</strong><br>
@@ -161,15 +148,9 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn-primary">
-                <i class="fas fa-save"></i> Salvar Alterações
-            </button>
-            <a href="{{ url_for('rotas.admin_events') }}" class="btn-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar para Lista
-            </a>
-            <a href="{{ url_for('rotas.event_details', event_id=evento.id_evento) }}" class="btn-info" target="_blank">
-                <i class="fas fa-eye"></i> Visualizar Evento
-            </a>
+            <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Salvar Alterações</button>
+            <a href="{{ url_for('rotas.admin_events') }}" class="btn-secondary"><i class="fas fa-arrow-left"></i> Voltar para Lista</a>
+            <a href="{{ url_for('rotas.event_details', event_id=evento.id_evento) }}" class="btn-info" target="_blank"><i class="fas fa-eye"></i> Visualizar Evento</a>
         </div>
     </form>
 </div>
@@ -180,24 +161,15 @@
 function addActivity() {
     const container = document.getElementById('atividades-container');
     const template = container.querySelector('.atividade-form').cloneNode(true);
-
-    template.querySelectorAll('input, textarea').forEach(el => el.value = '');
-    template.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
-
-    const activityNumber = container.children.length + 1;
-    template.querySelector('h4').textContent = `Atividade ${activityNumber}`;
-
+    template.querySelectorAll('input, textarea, select').forEach(el => { el.value = ''; });
+    template.querySelector('h4').textContent = `Atividade ${container.children.length + 1}`;
     container.appendChild(template);
 }
-
 function removeActivity(button) {
     const container = document.getElementById('atividades-container');
-    const activities = container.querySelectorAll('.atividade-form');
-
-    if (activities.length > 1) {
+    if (container.children.length > 1) {
         if (confirm('Tem certeza que deseja remover esta atividade?')) {
             button.closest('.atividade-form').remove();
-
             container.querySelectorAll('.atividade-form').forEach((activity, index) => {
                 activity.querySelector('h4').textContent = `Atividade ${index + 1}`;
             });
@@ -206,20 +178,15 @@ function removeActivity(button) {
         alert('Deve haver pelo menos uma atividade');
     }
 }
-
 document.addEventListener('DOMContentLoaded', function() {
     const dataInicio = document.getElementById('data_inicio');
     const dataFim = document.getElementById('data_fim');
-
     function validarDatas() {
-        if (dataInicio.value && dataFim.value) {
-            if (new Date(dataInicio.value) > new Date(dataFim.value)) {
-                alert('A data de início não pode ser posterior à data de fim.');
-                dataFim.value = dataInicio.value;
-            }
+        if (dataInicio.value && dataFim.value && new Date(dataInicio.value) > new Date(dataFim.value)) {
+            alert('A data de início não pode ser posterior à data de fim.');
+            dataFim.value = dataInicio.value;
         }
     }
-
     dataInicio.addEventListener('change', validarDatas);
     dataFim.addEventListener('change', validarDatas);
 });

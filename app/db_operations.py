@@ -1,4 +1,4 @@
-from utils.db_models import db, Usuario, TipoUsuario, Evento, Atividade, InscricaoEvento
+from utils.db_models import db, Usuario, TipoUsuario, Evento, Atividade, InscricaoEvento, Convidados
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -55,7 +55,8 @@ def create_event(data):
         vagas=int(data['vagas']),
         imagem_url=data.get('imagem_url'),
         id_organizador=int(data['id_organizador']),
-        online=data.get('online', False)
+        online=data.get('online', False),
+        convidados=data.get('convidados', [])  # <-- This line is added
     )
     db.session.add(ev)
     db.session.flush()  # get ev.id_evento before commit
@@ -85,6 +86,7 @@ def update_event(event_id, data):
     ev.vagas = int(data['vagas'])
     ev.online = data.get('online', False)
     ev.finished = data.get('finished', False)
+    ev.convidados = data.get('convidados', [])  # <-- This line is added
     if 'imagem_url' in data:
         ev.imagem_url = data['imagem_url']
     # Remove old activities and add new ones
@@ -152,3 +154,33 @@ def cancel_inscricao(user_id, event_id):
     db.session.delete(inscricao)
     db.session.commit()
     return True, None
+
+def create_convidado(nome, bio, foto=None):
+    convidado = Convidados(nome=nome, bio=bio, foto=foto)
+    db.session.add(convidado)
+    db.session.commit()
+    return convidado
+
+def get_all_convidados():
+    return Convidados.query.all()
+
+def get_convidado_by_id(convidado_id):
+    return Convidados.query.get_or_404(convidado_id)
+
+def update_convidado(convidado_id, data):
+    convidado = Convidados.query.get(convidado_id)
+    if not convidado:
+        raise Exception('Convidado não encontrado.')
+    convidado.nome = data['nome']
+    convidado.bio = data.get('bio')
+    if 'foto' in data and data['foto']:
+        convidado.foto = data['foto']
+    db.session.commit()
+    return convidado
+
+def delete_convidado(convidado_id):
+    convidado = Convidados.query.get(convidado_id)
+    if not convidado:
+        raise Exception('Convidado não encontrado.')
+    db.session.delete(convidado)
+    db.session.commit()

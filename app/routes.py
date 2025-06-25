@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from utils.utils import upload_image_to_imgbb
 from app.helpers import logged_user, requires_login, requires_admin
 from app.db_operations import *
-from utils.db_models import TipoAtividade, Evento
+from utils.db_models import *
 
 routes = Blueprint('rotas', __name__)
 
@@ -75,8 +75,21 @@ def event_details(event_id):
     user = logged_user()
     if user:
         inscrito = get_inscricao(user.id_usuario, event_id) is not None
-    return render_template('event_details.html', evento=evento, atividades=atividades, inscrito=inscrito, user=user)
 
+    evento.convidados_details = []
+    if evento.convidados:
+        all_convidados_map = {c.id_convidado: c for c in get_all_convidados()}
+
+        for convidado_id in evento.convidados:
+            convidado = all_convidados_map.get(convidado_id)
+            if convidado:
+                evento.convidados_details.append(convidado)
+
+    return render_template('event_details.html',
+                           evento=evento,
+                           atividades=atividades,
+                           inscrito=inscrito,
+                           user=user)
 @routes.route('/profile')
 @requires_login
 def profile():
@@ -115,13 +128,14 @@ def admin():
         'total_eventos': count_eventos(),
         'total_usuarios': 0,
         'total_admins': 0,
-        'total_organizadores': 0
+        'total_convidados': 0
     }
     eventos_recentes = [e for e in get_all_events()]
     usuarios = get_all_usuarios()
+    convidados = get_all_convidados()
     stats['total_usuarios'] = len(usuarios)
     stats['total_admins'] = sum(1 for u in usuarios if u.tipo.nome == 'admin')
-    stats['total_organizadores'] = sum(1 for u in usuarios if u.tipo.nome == 'organizador')
+    stats['total_convidados'] = len(convidados)
     eventos_recentes = sorted(eventos_recentes, key=lambda e: e.data_inicio, reverse=True)[:5]
     return render_template('admin/dashboard.html',
                            user=logged_user(),
@@ -150,14 +164,18 @@ def admin_users():
 @requires_admin
 def admin_create_event():
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
+    convidados = get_all_convidados() # <-- Fetch all guests
 
     if request.method == 'POST':
         imagem = request.files.get('imagem_evento')
         imagem_url = None
-        if imagem:
+        if imagem and imagem.filename:
             imagem_url = upload_image_to_imgbb(imagem)
             if not imagem_url:
                 flash('Erro ao fazer upload da imagem.', 'danger')
+
+        # Get the list of selected guest IDs from the form
+        convidados_ids = request.form.getlist('convidados') # <-- New
 
         payload = {
             "titulo": request.form['titulo'],
@@ -168,6 +186,8 @@ def admin_create_event():
             "vagas": int(request.form['vagas']),
             "imagem_url": imagem_url,
             "id_organizador": logged_user().id_usuario,
+            # Add the list of integer IDs to the payload
+            "convidados": [int(id) for id in convidados_ids], # <-- New
             "atividades": []
         }
 
@@ -191,13 +211,15 @@ def admin_create_event():
         try:
             create_event(payload)
             flash('Evento criado com sucesso!', 'success')
-            return redirect(url_for('rotas.admin_eventos'))
+            return redirect(url_for('rotas.admin_events'))
         except Exception as e:
             flash(f'Erro ao criar evento: {e}', 'danger')
 
+    # Pass the list of guests to the template
     return render_template('admin/create_event.html',
                            user=logged_user(),
-                           tipos=tipos)
+                           tipos=tipos,
+                           convidados=convidados) # <-- Pass guests to template
 
 @routes.route('/admin/editar-evento/<int:event_id>', methods=['GET', 'POST'])
 @requires_admin
@@ -205,8 +227,12 @@ def admin_edit_event(event_id):
     evento = get_evento_by_id(event_id)
     atividades = get_atividades_by_event(event_id)
     tipos = TipoAtividade.query.order_by(TipoAtividade.nome).all()
+    all_convidados = get_all_convidados() # <-- Fetch all guests
 
     if request.method == 'POST':
+        # Get the list of selected guest IDs from the form
+        convidados_ids = request.form.getlist('convidados') # <-- New
+
         payload = {
             "titulo": request.form['titulo'],
             "descricao": request.form.get('descricao'),
@@ -216,11 +242,13 @@ def admin_edit_event(event_id):
             "vagas": int(request.form['vagas']),
             "online": 'online' in request.form,
             "finished": 'finished' in request.form,
+            # Add the list of integer IDs to the payload
+            "convidados": [int(id) for id in convidados_ids], # <-- New
             "atividades": []
         }
 
         imagem = request.files.get('imagem_evento')
-        if imagem:
+        if imagem and imagem.filename:
             imagem_url = upload_image_to_imgbb(imagem)
             if imagem_url:
                 payload["imagem_url"] = imagem_url
@@ -244,15 +272,17 @@ def admin_edit_event(event_id):
         try:
             update_event(event_id, payload)
             flash('Evento atualizado com sucesso!', 'success')
-            return redirect(url_for('rotas.admin_eventos'))
+            return redirect(url_for('rotas.admin_events'))
         except Exception as e:
             flash(f'Erro ao atualizar evento: {e}', 'danger')
 
+    # Pass all guests to the template for the dropdown
     return render_template('admin/edit_event.html',
                            user=logged_user(),
                            evento=evento,
                            atividades=atividades,
-                           tipos=tipos)
+                           tipos=tipos,
+                           all_convidados=all_convidados)
 
 @routes.route('/admin/deletar-evento/<int:event_id>', methods=['POST'])
 @requires_admin
@@ -285,3 +315,96 @@ def admin_deletar_usuario(user_id):
     except Exception as e:
         flash(f'Erro ao deletar usuário: {e}', 'danger')
     return redirect(url_for('rotas.admin_users'))
+
+@routes.route('/admin/convidados', methods=['GET'])
+@requires_admin
+def admin_convidados():
+    """
+    Displays the list of all guests.
+    """
+    try:
+        convidados = get_all_convidados()
+        return render_template('admin/convidados.html', convidados=convidados, user=logged_user())
+    except Exception as e:
+        flash(f'Erro ao carregar convidados: {e}', 'danger')
+        return redirect(url_for('rotas.admin'))
+
+@routes.route('/admin/criar-convidado', methods=['GET', 'POST'])
+@requires_admin
+def admin_create_convidado():
+    """
+    Handles the creation of a new guest.
+    """
+    if request.method == 'POST':
+        try:
+            nome = request.form['nome']
+            bio = request.form.get('bio', '')
+            foto = request.files.get('foto')
+
+            foto_url = None
+            if foto and foto.filename:
+                # This assumes you have a function to handle the upload
+                foto_url = upload_image_to_imgbb(foto)
+                if not foto_url:
+                    flash('Ocorreu um erro ao fazer o upload da imagem.', 'danger')
+                    # Fallback to render the form again
+                    return render_template('admin/create_convidado.html', user=logged_user())
+
+            # Assuming create_convidado is updated to handle 'foto_url'
+            create_convidado(nome=nome, bio=bio, foto=foto_url)
+            flash('Convidado criado com sucesso!', 'success')
+            return redirect(url_for('rotas.admin_convidados'))
+        except Exception as e:
+            flash(f'Erro ao criar convidado: {e}', 'danger')
+
+    return render_template('admin/create_convidado.html', user=logged_user())
+
+@routes.route('/admin/editar-convidado/<int:convidado_id>', methods=['GET', 'POST'])
+@requires_admin
+def admin_edit_convidado(convidado_id):
+    """
+    Handles editing an existing guest.
+    """
+    convidado = get_convidado_by_id(convidado_id)
+    if not convidado:
+        flash('Convidado não encontrado.', 'danger')
+        return redirect(url_for('rotas.admin_convidados'))
+
+    if request.method == 'POST':
+        try:
+            data = {
+                'nome': request.form['nome'],
+                'bio': request.form.get('bio', ''),
+                'foto': convidado.foto  # Keep the old photo by default
+            }
+
+            foto = request.files.get('foto')
+            if foto and foto.filename:
+                foto_url = upload_image_to_imgbb(foto)
+                if foto_url:
+                    data['foto'] = foto_url
+                else:
+                    flash('Ocorreu um erro ao fazer o upload da nova imagem.', 'danger')
+                    return render_template('admin/edit_convidado.html', convidado=convidado, user=logged_user())
+
+            update_convidado(convidado_id, data)
+            flash('Convidado atualizado com sucesso!', 'success')
+            return redirect(url_for('rotas.admin_convidados'))
+        except Exception as e:
+            flash(f'Erro ao atualizar convidado: {e}', 'danger')
+
+    return render_template('admin/edit_convidado.html', convidado=convidado, user=logged_user())
+
+@routes.route('/admin/deletar-convidado/<int:convidado_id>', methods=['POST'])
+@requires_admin
+def admin_delete_convidado(convidado_id):
+    """
+    Handles the deletion of a guest.
+    """
+    try:
+        delete_convidado(convidado_id)
+        flash('Convidado deletado com sucesso!', 'success')
+    except Exception as e:
+        flash(f'Erro ao deletar convidado: {e}', 'danger')
+
+    return redirect(url_for('rotas.admin_convidados'))
