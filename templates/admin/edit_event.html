@@ -15,6 +15,13 @@
                 <label for="online" class="checkbox-label">Online</label>
             </div>
         </div>
+        <div class="form-group">
+            <label for="finished"><i class="fas fa-check-circle"></i> Finalizar Evento</label>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="finished" name="finished" value="1" {% if evento.finished %}checked{% endif %}>
+                <label for="finished" class="checkbox-label">Finalizado</label>
+            </div>
+        </div>
         <div class="form-grid">
             <div class="form-group">
                 <label for="titulo"><i class="fas fa-heading"></i> Título *</label>

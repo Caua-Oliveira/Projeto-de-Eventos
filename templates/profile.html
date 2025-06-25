@@ -30,11 +30,44 @@
       </div>
     </div>
     <div class="profile-events-section">
+      {# Filter events into upcoming and finished lists #}
+      {% set upcoming_inscricoes = inscricoes|selectattr('evento.finished', 'false')|list %}
+      {% set finished_inscricoes = inscricoes|selectattr('evento.finished', 'true')|list %}
+
+      <!-- Block for Upcoming Events -->
       <div class="profile-events-block">
-        <h3 class="profile-events-title">Eventos Inscritos</h3>
-        {% if inscricoes %}
+  <h3 class="profile-events-title">Eventos Inscritos</h3>
+  {% if upcoming_inscricoes %}
+  <ul class="profile-events-list">
+    {% for ins in upcoming_inscricoes %}
+      <li class="profile-event-item">
+  <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
+    <span class="profile-event-title">{{ ins.evento.titulo }}</span>
+    <span class="profile-event-date">
+      {{ ins.evento.data_inicio.strftime('%d/%m/%Y') }} - {{ ins.evento.data_fim.strftime('%d/%m/%Y') }}
+    </span>
+  </a>
+  <form method="POST" action="{{ url_for('rotas.cancel_inscricao_route', event_id=ins.evento.id_evento) }}"
+        class="cancel-inscricao-form"
+        onsubmit="return confirm('Tem certeza que deseja cancelar sua inscrição neste evento?');">
+    <button type="submit" class="btn-cancel-inscricao" title="Cancelar inscrição">
+      &times;
+    </button>
+  </form>
+</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <div class="profile-events-empty">Você não está inscrito em nenhum evento futuro ou em andamento.</div>
+  {% endif %}
+</div>
+
+      <!-- Block for Finished Events -->
+      {% if finished_inscricoes %}
+      <div class="profile-events-block">
+        <h3 class="profile-events-title">Eventos Participados</h3>
         <ul class="profile-events-list">
-          {% for ins in inscricoes %}
+          {% for ins in finished_inscricoes %}
             <li>
               <a href="{{ url_for('rotas.event_details', event_id=ins.evento.id_evento) }}">
                 <span class="profile-event-title">{{ ins.evento.titulo }}</span>
@@ -45,10 +78,8 @@
             </li>
           {% endfor %}
         </ul>
-        {% else %}
-          <div class="profile-events-empty">Você não está inscrito em nenhum evento.</div>
-        {% endif %}
       </div>
+      {% endif %}
     </div>
   </div>
   <script src="https://kit.fontawesome.com/1d7d9b3c9a.js" crossorigin="anonymous"></script>
