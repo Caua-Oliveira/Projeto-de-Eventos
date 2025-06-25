@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
+  {% set meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] %}
   {% include 'nav_bar.html' %}
 
   <div class="evento-detalhes-wrapper">
@@ -16,19 +17,26 @@
         <img src="{{ evento.imagem_url if evento.imagem_url else url_for('static', filename='pluralize.png') }}" alt="Imagem do evento" />
       </div>
       <div class="evento-detalhes-body">
-        <span class="evento-detalhes-badge">
-          {% if evento.online %}
-            Online
-          {% else %}
-            Presencial
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+          <span class="evento-detalhes-badge">
+            {% if evento.online %}
+              Online
+            {% else %}
+              Presencial
+            {% endif %}
+          </span>
+          {% if evento.finished %}
+          <span class="evento-detalhes-badge" style="background-color: darkred; color: white; margin-left: 0.5rem;">
+            Finalizado
+          </span>
           {% endif %}
-        </span>
+        </div>
         <h1 class="evento-detalhes-title">{{ evento.titulo }}</h1>
         <div class="evento-detalhes-meta">
           <div class="evento-detalhes-meta-item">
             <i class="fas fa-calendar-alt"></i>
             <span>
-              {{ evento.data_inicio.strftime('%b %d, %Y') }} - {{ evento.data_fim.strftime('%b %d, %Y') }}
+              {{ evento.data_inicio.day }} de {{ meses[evento.data_inicio.month - 1] }}, {{ evento.data_inicio.year }} - {{ evento.data_fim.day }} de {{ meses[evento.data_fim.month - 1] }}, {{ evento.data_fim.year }}
             </span>
           </div>
           <div class="evento-detalhes-meta-item">

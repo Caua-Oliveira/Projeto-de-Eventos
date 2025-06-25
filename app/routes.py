@@ -3,13 +3,14 @@ from utils.utils import upload_image_to_imgbb
 from app.helpers import logged_user, requires_login, requires_admin
 from app.db_operations import *
 from utils.db_models import *
+from sqlalchemy import or_
 
 routes = Blueprint('rotas', __name__)
 
 @routes.route('/')
 def home():
-    return render_template('home.html', user=logged_user(),
-                           events=get_eventos())
+    eventos_ativos = Evento.query.filter_by(finished=False).all()
+    return render_template('home.html', user=logged_user(), events=eventos_ativos)
 
 @routes.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
@@ -50,22 +51,55 @@ def logout():
 
 @routes.route('/events')
 def events():
-    has_param = 'online' in request.args or 'irl' in request.args
-    show_online = request.args.get('online') == '1' or not has_param
-    show_irl = request.args.get('irl') == '1' or not has_param
+    # Detect if any filter param was provided
+    has_filter = any(param in request.args for param in ('online', 'irl', 'finished'))
 
-    base_query = Evento.query.filter_by(finished=False)
+    # Determine which lists to show (default to all if no filters)
+    show_online    = (request.args.get('online') == '1')  or not has_filter
+    show_irl       = (request.args.get('irl')    == '1')  or not has_filter
+    show_finished = (request.args.get('finished') == '1') or not has_filter
 
-    if show_online and show_irl:
-        events = base_query.all()
-    elif show_online:
-        events = base_query.filter_by(online=True).all()
-    elif show_irl:
-        events = base_query.filter_by(online=False).all()
+    # Build base query (we no longer force finished=False here)
+    base_query = Evento.query
+
+    # Collect SQLAlchemy filter expressions
+    filters = []
+
+    # online vs IRL
+    if show_online and not show_irl:
+        filters.append(Evento.online == True)
+    elif show_irl and not show_online:
+        filters.append(Evento.online == False)
+    # if both or neither, no filter on .online
+
+    # finished vs unfinished
+    if show_finished and not has_filter or (show_finished and not request.args.get('finished')):
+        # if only finished checked
+        pass  # no extra filter needed if default both
+    if show_finished and not show_online and not show_irl:
+        # user only wants finished, no need to check online/irl
+        filters = [Evento.finished == True]
+    elif show_finished and has_filter:
+        # include finished events too, so no filter on .finished
+        pass
+    elif not show_finished:
+        # exclude finished events
+        filters.append(Evento.finished == False)
+
+    # Apply filters
+    if filters:
+        events = base_query.filter(*filters).all()
     else:
-        events = []
+        events = base_query.all()
 
-    return render_template('events.html', events=events, user=logged_user(), show_online=show_online, show_irl=show_irl)
+    return render_template(
+        'events.html',
+        events=events,
+        user=logged_user(),
+        show_online=show_online,
+        show_irl=show_irl,
+        show_finished=show_finished
+    )
 
 @routes.route('/events/<int:event_id>')
 def event_details(event_id):

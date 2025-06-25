@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='nav_bar.css') }}" />
 </head>
 <body>
+  {% set meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] %}
   {% include 'nav_bar.html' %}
 
   <div class="events-bg">
@@ -24,6 +25,11 @@
               <input type="checkbox" name="irl" value="1" {% if show_irl %}checked{% endif %}>
               <span>Presencial</span>
             </label>
+              <label  class="filter-checkbox">
+                 <input type="checkbox" name="finished" value="1"
+                   {% if show_finished %}checked{% endif %}>
+                 Finalizados
+              </label>
           </div>
           <button type="submit" class="filter-btn">Filtrar</button>
         </form>
@@ -36,16 +42,27 @@
                  alt="Imagem do evento">
           </div>
           <div class="evento-body">
-            <span class="evento-badge">
-              {% if ev.online %}
-                Online
-              {% else %}
-                Presencial
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span class="evento-badge">
+                  {% if ev.online %}
+                    Online
+                  {% else %}
+                    Presencial
+                  {% endif %}
+                </span>
+              </div>
+              {% if ev.finished %}
+              <div>
+                <span class="evento-badge finished" style="background-color: darkred; color: white; margin-left: 5px;">
+                  Finalizado
+                </span>
+              </div>
               {% endif %}
-            </span>
+            </div>
             <div class="evento-title">{{ ev.titulo }}</div>
             <div class="evento-dates">
-              {{ ev.data_inicio.strftime('%b %d, %Y') }} - {{ ev.data_fim.strftime('%b %d, %Y') }}
+              {{ ev.data_inicio.day }} de {{ meses[ev.data_inicio.month - 1] }}, {{ ev.data_inicio.year }} - {{ ev.data_fim.day }} de {{ meses[ev.data_fim.month - 1] }}, {{ ev.data_fim.year }}
             </div>
             <div class="evento-location">
               {{ ev.local or '—' }}
