@@ -53,7 +53,7 @@
             {% for convidado in evento.convidados_details %}
             <div class="convidado-card">
               <div class="convidado-foto">
-                <img src="{{ convidado.foto or url_for('static', filename='default_avatar.png') }}" alt="Foto de {{ convidado.nome }}">
+                <img src="{{ convidado.foto or url_for('static', filename='default_user.png') }}" alt="Foto de {{ convidado.nome }}">
               </div>
               <div class="convidado-info">
                 <h3 class="convidado-nome">{{ convidado.nome }}</h3>
