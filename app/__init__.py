@@ -5,9 +5,14 @@ from utils.db_models import db
 import os
 import json
 
-secrets_path = os.path.abspath(os.path.join(__file__, '..', '..', 'secrets.json'))
-with open(secrets_path) as f:
-    secrets = json.load(f)
+try:
+    secrets_path = os.path.abspath(os.path.join(__file__, '..', '..', 'secrets.json'))
+    with open(secrets_path) as f:
+        secrets = json.load(f)
+except FileNotFoundError:
+    raise FileNotFoundError("O arquivo secrets.json não foi encontrado. Crie o arquivo com as credenciais necessárias.")
+
+#mysql+pymysql://root:XXYHswUFMUBSDaObqyDSfJZXYUOmzdVp@tramway.proxy.rlwy.net:16375/railway
 db_url = secrets.get('railway_db_url')
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
