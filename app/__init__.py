@@ -1,6 +1,7 @@
 from flask import Flask
 from app.routes import routes
 from app.api import api
+from app.docs import docs
 from utils.db_models import db
 import os
 import json
@@ -29,5 +30,6 @@ def create_app():
 
     app.register_blueprint(routes)
     app.register_blueprint(api, url_prefix='/api')
+    app.register_blueprint(docs)
 
     return app

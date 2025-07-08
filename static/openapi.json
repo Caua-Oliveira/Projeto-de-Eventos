@@ -1,0 +1,419 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Documentação da API do Evento",
+    "version": "1.0.0",
+    "description": "Documentação interativa dos endpoints da API para o sistema de eventos."
+  },
+  "tags": [
+    {"name": "Autenticação", "description": "Cadastro e login de usuários"},
+    {"name": "Usuários", "description": "Gerenciamento de usuários"},
+    {"name": "Eventos", "description": "Operações relacionadas a eventos"},
+    {"name": "Convidados", "description": "Operações relacionadas a convidados"},
+    {"name": "Atividades", "description": "Operações relacionadas às atividades dos eventos"}
+  ],
+  "paths": {
+    "/api/sign_up": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Cadastro de novo usuário",
+        "description": "Cria um novo usuário no sistema.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {"type": "string"},
+                  "email": {"type": "string"},
+                  "senha": {"type": "string"}
+                },
+                "required": ["nome", "email", "senha"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Usuário criado com sucesso"},
+          "400": {"description": "Dados inválidos ou ausentes"}
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Login do usuário",
+        "description": "Realiza login do usuário.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {"type": "string"},
+                  "senha": {"type": "string"}
+                },
+                "required": ["email", "senha"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Login realizado com sucesso"},
+          "401": {"description": "Credenciais inválidas"},
+          "400": {"description": "Dados ausentes"}
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Listar todos os usuários (admin)",
+        "description": "Retorna a lista completa de usuários (apenas para administradores).",
+        "responses": {
+          "200": {"description": "Lista de usuários"}
+        }
+      }
+    },
+    "/api/users/{user_id}": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Buscar usuário por ID",
+        "description": "Retorna os dados de um usuário específico.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Usuário encontrado"},
+          "404": {"description": "Usuário não encontrado"}
+        }
+      },
+      "delete": {
+        "tags": ["Usuários"],
+        "summary": "Deletar usuário (admin)",
+        "description": "Remove um usuário do sistema (apenas para administradores).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Usuário deletado"},
+          "400": {"description": "Erro ao deletar"}
+        }
+      }
+    },
+    "/api/users/{user_id}/events": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Eventos do usuário",
+        "description": "Lista todos os eventos nos quais o usuário está inscrito.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Lista de eventos do usuário"}
+        }
+      }
+    },
+    "/api/events": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Listar eventos",
+        "description": "Lista eventos cadastrados, podendo limitar a quantidade de resultados.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Lista de eventos"}
+        }
+      },
+      "post": {
+        "tags": ["Eventos"],
+        "summary": "Criar evento (admin)",
+        "description": "Cria um novo evento (apenas para administradores).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titulo": {"type": "string"},
+                  "descricao": {"type": "string"},
+                  "local": {"type": "string"},
+                  "data_inicio": {"type": "string"},
+                  "data_fim": {"type": "string"},
+                  "vagas": {"type": "integer"},
+                  "imagem_url": {"type": "string"},
+                  "id_organizador": {"type": "integer"},
+                  "convidados": {"type": "array", "items": {"type": "integer"}},
+                  "atividades": {"type": "array", "items": {"type": "object"}}
+                },
+                "required": ["titulo", "data_inicio", "data_fim", "vagas"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Evento criado"},
+          "400": {"description": "Dados inválidos"}
+        }
+      }
+    },
+    "/api/events/{event_id}": {
+      "get": {
+        "tags": ["Eventos"],
+        "summary": "Detalhes do evento",
+        "description": "Obtém detalhes de um evento específico.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Evento encontrado"},
+          "404": {"description": "Evento não encontrado"}
+        }
+      },
+      "put": {
+        "tags": ["Eventos"],
+        "summary": "Atualizar evento (admin)",
+        "description": "Atualiza informações de um evento (apenas para administradores).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"type": "object"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Evento atualizado"},
+          "400": {"description": "Erro de atualização"}
+        }
+      },
+      "delete": {
+        "tags": ["Eventos"],
+        "summary": "Deletar evento (admin)",
+        "description": "Exclui um evento do sistema (apenas para administradores).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Evento deletado"},
+          "400": {"description": "Erro ao deletar"}
+        }
+      }
+    },
+    "/api/events/{event_id}/register": {
+      "post": {
+        "tags": ["Eventos"],
+        "summary": "Inscrever-se no evento",
+        "description": "Inscreve o usuário logado em um evento.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Inscrição realizada"},
+          "400": {"description": "Erro na inscrição"}
+        }
+      }
+    },
+    "/api/events/{event_id}/cancel": {
+      "post": {
+        "tags": ["Eventos"],
+        "summary": "Cancelar inscrição no evento",
+        "description": "Cancela a inscrição do usuário logado em um evento.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Inscrição cancelada"},
+          "400": {"description": "Erro ao cancelar"}
+        }
+      }
+    },
+    "/api/events/{event_id}/activities": {
+      "get": {
+        "tags": ["Atividades"],
+        "summary": "Atividades do evento",
+        "description": "Lista todas as atividades de um determinado evento.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Lista de atividades"}
+        }
+      }
+    },
+    "/api/convidados": {
+      "get": {
+        "tags": ["Convidados"],
+        "summary": "Listar convidados",
+        "description": "Lista todos os convidados cadastrados.",
+        "responses": {
+          "200": {"description": "Lista de convidados"}
+        }
+      },
+      "post": {
+        "tags": ["Convidados"],
+        "summary": "Criar convidado (admin)",
+        "description": "Adiciona um novo convidado ao sistema (apenas para administradores).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {"type": "string"},
+                  "bio": {"type": "string"},
+                  "foto": {"type": "string"}
+                },
+                "required": ["nome"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Convidado criado"},
+          "400": {"description": "Erro ao criar"}
+        }
+      }
+    },
+    "/api/convidados/{convidado_id}": {
+      "get": {
+        "tags": ["Convidados"],
+        "summary": "Detalhes do convidado",
+        "description": "Obtém detalhes de um convidado específico.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "convidado_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Convidado encontrado"},
+          "404": {"description": "Convidado não encontrado"}
+        }
+      },
+      "put": {
+        "tags": ["Convidados"],
+        "summary": "Atualizar convidado (admin)",
+        "description": "Atualiza informações de um convidado (apenas para administradores).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "convidado_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"type": "object"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Convidado atualizado"},
+          "400": {"description": "Erro de atualização"}
+        }
+      },
+      "delete": {
+        "tags": ["Convidados"],
+        "summary": "Deletar convidado (admin)",
+        "description": "Exclui um convidado do sistema (apenas para administradores).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "convidado_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Convidado deletado"},
+          "400": {"description": "Erro ao deletar"}
+        }
+      }
+    },
+    "/api/activities/{activity_id}": {
+      "get": {
+        "tags": ["Atividades"],
+        "summary": "Detalhes da atividade",
+        "description": "Obtém informações detalhadas de uma atividade.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "activity_id",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "Atividade encontrada"},
+          "404": {"description": "Atividade não encontrada"}
+        }
+      }
+    }
+  }
+}

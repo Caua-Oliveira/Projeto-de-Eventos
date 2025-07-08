@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>API Docs</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" >
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #swagger-ui { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    window.onload = function() {
+      SwaggerUIBundle({
+        url: "{{ url_for('docs.openapi_json') }}",
+        dom_id: '#swagger-ui',
+        layout: "BaseLayout",
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+        ],
+        docExpansion: "none",
+        defaultModelsExpandDepth: -1
+      })
+    }
+  </script>
+</body>
+</html>
